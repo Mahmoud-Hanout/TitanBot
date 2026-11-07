@@ -25,7 +25,7 @@ export const botConfig = {
       {
         name: "⚙️ إدارة شئون السيرفر", // required by Discord API, not shown in the client
         state: "👳🏿‍♀️ الخادم الخاص لأصحاب الفخامة الفحولية في السيرفر",     // this is what people actually see
-        type: 3,               // Custom
+        type: 0,               // Custom
       },
     ],
   },
@@ -93,8 +93,8 @@ export const botConfig = {
   embeds: {
     colors: {
       // Main brand colors.
-      primary: "#9b22c7",
-      secondary: "#164edb",
+      primary: "#000001",
+      secondary: "#808080",
 
       // Standard status colors for success/error/warning/info messages.
       success: "#57F287",
