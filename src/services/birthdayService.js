@@ -5,15 +5,21 @@ import { getGuildBirthdays, setBirthday as dbSetBirthday, deleteBirthday as dbDe
 import { logger } from '../utils/logger.js';
 import { TitanBotError, ErrorTypes } from '../utils/errorHandler.js';
 
-export function validateBirthday(month, day) {
+export function validateBirthday(year, month, day) {
   
-  if (typeof month !== 'number' || typeof day !== 'number') {
+  if (typeof year !== 'number' || typeof month !== 'number' || typeof day !== 'number') {
     return {
       isValid: false,
-      error: 'Month and day must be numbers'
+      error: 'Year, Month and day must be numbers'
     };
   }
-
+    if (year < 1900 || year > 2024) {
+    return {
+      isValid: false,
+      error: 'Year must be between 1900 and 2024'
+    };
+  }
+  
   if (month < 1 || month > 12) {
     return {
       isValid: false,
@@ -41,14 +47,15 @@ export function validateBirthday(month, day) {
   return { isValid: true };
 }
 
-export async function setBirthday(client, guildId, userId, month, day) {
+export async function setBirthday(client, guildId, userId, year, month, day) {
   try {
     
-    const validation = validateBirthday(month, day);
+    const validation = validateBirthday(year, month, day);
     if (!validation.isValid) {
       logger.warn('Birthday validation failed', {
         userId,
         guildId,
+        year,
         month,
         day,
         error: validation.error
@@ -58,24 +65,25 @@ export async function setBirthday(client, guildId, userId, month, day) {
         validation.error,
         ErrorTypes.VALIDATION,
         validation.error,
-        { month, day, userId, guildId }
+        { year, month, day, userId, guildId }
       );
     }
 
-    const success = await dbSetBirthday(client, guildId, userId, month, day);
+    const success = await dbSetBirthday(client, guildId, userId, year, month, day);
     
     if (!success) {
       throw new TitanBotError(
         'Failed to save birthday to database',
         ErrorTypes.DATABASE,
         'Failed to set your birthday. Please try again later.',
-        { userId, guildId, month, day }
+        { userId, guildId, year, month, day }
       );
     }
 
     logger.info('Birthday set successfully', {
       userId,
       guildId,
+      year,
       month,
       day,
       monthName: getMonthName(month)
@@ -83,6 +91,7 @@ export async function setBirthday(client, guildId, userId, month, day) {
 
     return {
       data: {
+        year,
         month,
         day,
         monthName: getMonthName(month)
@@ -94,6 +103,7 @@ export async function setBirthday(client, guildId, userId, month, day) {
       stack: error.stack,
       userId,
       guildId,
+      year,
       month,
       day
     });
@@ -112,6 +122,7 @@ export async function getUserBirthday(client, guildId, userId) {
     }
 
     return {
+      year: birthdayDate.year,
       month: birthdayData.month,
       day: birthdayData.day,
       monthName: getMonthName(birthdayData.month)
@@ -137,6 +148,7 @@ export async function getAllBirthdays(client, guildId) {
     const sortedBirthdays = Object.entries(birthdays)
       .map(([userId, data]) => ({
         userId,
+        year: data.year,
         month: data.month,
         day: data.day,
         monthName: getMonthName(data.month)
@@ -220,6 +232,7 @@ export async function getUpcomingBirthdays(client, guildId, limit = 5) {
       
       upcomingBirthdays.push({
         userId,
+        year: userData.year,
         month: userData.month,
         day: userData.day,
         monthName: getMonthName(userData.month),
@@ -254,6 +267,7 @@ export async function getTodaysBirthdays(client, guildId) {
       if (userData.month === currentMonth && userData.day === currentDay) {
         todaysBirthdays.push({
           userId,
+          year: userData.year,
           month: userData.month,
           day: userData.day,
           monthName: getMonthName(userData.month)
