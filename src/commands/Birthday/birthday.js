@@ -20,8 +20,16 @@ export default {
                 .setDescription('Set your birthday')
                 .addIntegerOption(option =>
                     option
+                        .setName('year')
+                        .setDescription('Birth Year (1900-2024)')
+                        .setRequired(true)
+                        .setMinValue(1900)
+                        .setMaxValue(2024)
+                )
+                .addIntegerOption(option =>
+                    option
                         .setName('month')
-                        .setDescription('Birth month (1-12)')
+                        .setDescription('أختار من شهر ١ لي شهر ١٢)')
                         .setRequired(true)
                         .setMinValue(1)
                         .setMaxValue(12)
@@ -29,7 +37,7 @@ export default {
                 .addIntegerOption(option =>
                     option
                         .setName('day')
-                        .setDescription('Birth day (1-31)')
+                        .setDescription('Birth Day (1-31)')
                         .setRequired(true)
                         .setMinValue(1)
                         .setMaxValue(31)
