@@ -24,7 +24,7 @@ export const botConfig = {
     activities: [
       {
         name: "⚙️ إدارة شئون السيرفر", // required by Discord API, not shown in the client
-        state: "👳🏿‍♀️ الخادم الخاص لأصحاب الفخامة الفحولية في السيرفر",     // this is what people actually see
+        state: "👳🏿‍♀️ الخادم المخلص الخاص لأصحاب الفخامة الفحولية في السيرفر",     // this is what people actually see
         type: 0,               // Custom
       },
     ],
