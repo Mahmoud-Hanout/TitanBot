@@ -23,8 +23,8 @@ export const botConfig = {
     // 5 = Competing
     activities: [
       {
-        name: "👌🏻إدارة شئون السيرفر❤️", // required by Discord API, not shown in the client
-        state: "👀تمشي عدل تبقى صاحبي و حبيبي و كفائة، هتتعوج هعمل معاك واحد أنا و صحاب السيرفر😘",     // this is what people actually see
+        name: "⚙️ إدارة شئون السيرفر", // required by Discord API, not shown in the client
+        state: "👳🏿‍♀️ الخادم الخاص لأصحاب الفخامة الفحولية في السيرفر",     // this is what people actually see
         type: 3,               // Custom
       },
     ],
@@ -93,8 +93,8 @@ export const botConfig = {
   embeds: {
     colors: {
       // Main brand colors.
-      primary: "#336699",
-      secondary: "#2F3136",
+      primary: "#9b22c7",
+      secondary: "#164edb",
 
       // Standard status colors for success/error/warning/info messages.
       success: "#57F287",
