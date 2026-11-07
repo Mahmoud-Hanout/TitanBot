@@ -25,7 +25,7 @@ export const botConfig = {
       {
         name: "👌🏻إدارة شئون السيرفر❤️", // required by Discord API, not shown in the client
         state: "👀تمشي عدل تبقى صاحبي و حبيبي و كفائة، هتتعوج هعمل معاك واحد أنا و صحاب السيرفر😘",     // this is what people actually see
-        type: `😂${3}`,               // Custom
+        type: 3,               // Custom
       },
     ],
   },
