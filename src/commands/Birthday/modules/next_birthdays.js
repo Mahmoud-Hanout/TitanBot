@@ -49,7 +49,7 @@ export default {
             });
         }
 
-        let birthdayList = `🎂 **Next 5 Upcoming Birthdays**\n\nHere are the next 5 birthdays in ${interaction.guild.name}:\n\n`;
+        let birthdayList = `🎂 \n\nHere are the next 5 birthdays in ${interaction.guild.name}:\n\n`;
         displayIndex = 0;
         for (const birthday of next5) {
             const member = await interaction.guild.members.fetch(birthday.userId).catch(() => null);
