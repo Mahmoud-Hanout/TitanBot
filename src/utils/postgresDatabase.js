@@ -722,8 +722,7 @@ class PostgreSQLDatabase {
         }
     }
 
-    async setStructuredData(parsedKey, val
-                            ue, ttl) {
+    async setStructuredData(parsedKey, value, ttl) {
         try {
             switch (parsedKey.type) {
                 case 'guild_config':
