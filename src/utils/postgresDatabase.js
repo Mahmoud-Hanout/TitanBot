@@ -624,12 +624,12 @@ class PostgreSQLDatabase {
                 
                 case 'guild_birthdays':
                     const birthdayResult = await this.pool.query(
-                        `SELECT user_id, month, day FROM ${pgConfig.tables.birthdays} WHERE guild_id = $1`,
+                        `SELECT user_id, year, month, day FROM ${pgConfig.tables.birthdays} WHERE guild_id = $1`,
                         [parsedKey.guildId]
                     );
                     const birthdays = {};
                     birthdayResult.rows.forEach(row => {
-                        birthdays[row.user_id] = { month: row.month, day: row.day };
+                        birthdays[row.user_id] = { year: row.year, month: row.month, day: row.day };
                     });
                     return birthdays;
                 
@@ -753,9 +753,9 @@ class PostgreSQLDatabase {
                         );
                         
                         await this.pool.query(
-                            `INSERT INTO ${pgConfig.tables.birthdays} (guild_id, user_id, month, day) 
+                            `INSERT INTO ${pgConfig.tables.birthdays} (guild_id, user_id, year, month, day) 
                              VALUES ($1, $2, $3, $4)`,
-                            [parsedKey.guildId, userId, birthday.month, birthday.day]
+                            [parsedKey.guildId, userId, birthday.year,birthday.month, birthday.day]
                         );
                     }
                     return true;
