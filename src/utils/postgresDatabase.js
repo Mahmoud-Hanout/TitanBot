@@ -722,7 +722,8 @@ class PostgreSQLDatabase {
         }
     }
 
-    async setStructuredData(parsedKey, value, ttl) {
+    async setStructuredData(parsedKey, val
+                            ue, ttl) {
         try {
             switch (parsedKey.type) {
                 case 'guild_config':
@@ -754,7 +755,7 @@ class PostgreSQLDatabase {
                         
                         await this.pool.query(
                             `INSERT INTO ${pgConfig.tables.birthdays} (guild_id, user_id, year, month, day) 
-                             VALUES ($1, $2, $3, $4)`,
+                             VALUES ($1, $2, $3, $4, $5)`,
                             [parsedKey.guildId, userId, birthday.year,birthday.month, birthday.day]
                         );
                     }
