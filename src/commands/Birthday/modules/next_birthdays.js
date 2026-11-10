@@ -49,7 +49,7 @@ export default {
             });
         }
 
-        let birthdayList = `🎂 \n\nربنا يديكو و يدينا الصحه و طوله العمر مع حبايبكم\n\n`;
+        let birthdayList = `\n\nربنا يديكو و يدينا الصحه و طوله العمر مع حبايبكم\n\n`;
         displayIndex = 0;
         for (const birthday of next5) {
             const member = await interaction.guild.members.fetch(birthday.userId).catch(() => null);
