@@ -63,6 +63,12 @@ export default {
             subcommand
                 .setName('remove')
                 .setDescription('Remove your birthday')
+                .addUserOption(option =>
+                    option
+                        .setName('user')
+                        .setDescription('User to remove his birthday')
+                        .setRequired(false)
+                )
         )
         .addSubcommand(subcommand =>
             subcommand
