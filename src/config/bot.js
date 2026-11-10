@@ -23,7 +23,7 @@ export const botConfig = {
     // 5 = Competing
     activities: [
       {
-        name: "⚙️ إدارة شئون السيرفر", // required by Discord API, not shown in the client
+        name: " إدارة شئون السيرفر", // required by Discord API, not shown in the client
         state: "👳🏿‍♀️ الخادم المخلص الخاص لأصحاب الفخامة الفحولية في السيرفر",     // this is what people actually see
         type: 0,               // Custom
       },
