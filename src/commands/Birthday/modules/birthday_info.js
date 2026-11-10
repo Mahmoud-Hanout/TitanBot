@@ -16,7 +16,7 @@ export default {
         if (!birthdayData) {
             const embed = new EmbedBuilder()
                 .setColor(0xFF0000)
-                .setTitle(`مفيش تاريخ ميلاد بأسم ${targetUser.id}`)
+                .setTitle(`مفيش تاريخ ميلاد بأسم ${targetUser.username}`)
                 .setDescription(targetUser.id === interaction.user.id 
                     ? "أنت لسه مدخلتش تاريخ ميلادك، استخدم الأمر `birthday set/` و بعدها دخل تاريخ الميلاد."
                     : `مفيش تاريخ ميلاد للفحل **${targetUser.username}** عشان لسه مسجلش تاريخ ميلاده.`);
