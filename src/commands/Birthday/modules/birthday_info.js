@@ -28,7 +28,7 @@ export default {
         const embed = new EmbedBuilder()
             .setColor(0x00FF00)
             .setTitle('معلومات تواريخ الميلاد')
-            .setDescription(`**تاريخ المستخدم:** ${birthdayData.day} ${birthdayData.monthName} ${birthdayData.year}\n**أسم المستخدم:** ${targetUser.toString()}`);
+            .setDescription(`**تاريخ المستخدم:** ${birthdayData.day} ${birthdayData.year} ${birthdayData.monthName}\n**أسم المستخدم:** ${targetUser.toString()}`);
 
         await InteractionHelper.safeEditReply(interaction, {
             embeds: [embed]
