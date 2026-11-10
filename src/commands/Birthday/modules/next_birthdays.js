@@ -67,7 +67,7 @@ export default {
                 timeUntil = `${birthday.daysUntil} يوم`;
             }
 
-            birthdayList += `رقم ${displayIndex}- ** ${member.user.username} **\n **أسم المستخدم:** <@${birthday.userId}>\n📅 **تاريخ الميلاد:** X ${birthdayData.year} ${birthdayData.monthName} ${birthdayData.day}\n⏰ **فاضل علي عيد ميلاده:** ${timeUntil}\n\n`;
+            birthdayList += `رقم ${displayIndex}- ** ${member.user.username} **\n **أسم المستخدم:** <@${birthday.userId}>\n📅 **تاريخ الميلاد:** X ${birthday.year} ${birthday.monthName} ${birthday.day}\n⏰ **فاضل علي عيد ميلاده:** ${timeUntil}\n\n`;
         }
 
         birthdayList += `Use /birthday set to add your birthday!`;
