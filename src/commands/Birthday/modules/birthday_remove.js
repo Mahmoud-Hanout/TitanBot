@@ -14,8 +14,8 @@ export default {
         if (result.status === 'not_found') {
             const embed = new EmbedBuilder()
                 .setColor(0xFF0000)
-                .setTitle('No Birthday Found')
-                .setDescription('You don\'t have a birthday set to remove.');
+                .setTitle('غير موجود')
+                .setDescription('مش موجود ليك تاريخ ميلاد مسجل اصلا علشان تمسحه.');
             await InteractionHelper.safeEditReply(interaction, {
                 embeds: [embed]
             });
