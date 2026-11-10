@@ -11,15 +11,14 @@ export default {
         const guildId = interaction.guildId;
         
         if (!isSelf && interaction.user.id !== interaction.guild.ownerId) {
-                const noPermEmbed = new EmbedBuilder()
-                    .setColor(0xFF0000)
-                    .setTitle('غير مسموح')
-                    .setDescription('مينفعش تمسح تاريخ ميلاد شخص تاني غيرك علشان مش معاك الصلاحية اللي تخليك تعمل كدا.');
-                
-                return await InteractionHelper.safeEditReply(interaction, {
-                    embeds: [noPermEmbed]
-                });
-            }
+            const noPermEmbed = new EmbedBuilder()
+                .setColor(0xFF0000)
+                .setTitle('غير مسموح')
+                .setDescription('مينفعش تمسح تاريخ ميلاد شخص تاني غيرك علشان مش معاك الصلاحية اللي تخليك تعمل كدا.');
+            
+            return await InteractionHelper.safeEditReply(interaction, {
+                embeds: [noPermEmbed]
+            });
         }
 
         const result = await deleteBirthday(client, guildId, targetUser.id);
