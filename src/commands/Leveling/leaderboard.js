@@ -7,7 +7,7 @@ import { InteractionHelper } from '../../utils/interactionHelper.js';
 export default {
   data: new SlashCommandBuilder()
     .setName('leaderboard')
-    .setDescription("Shows the server's level leaderboard")
+    .setDescription(".علشان تشوف أصحاب أعلى لفلات في السيرفر")
     .setDMPermission(false),
   category: 'Leveling',
 
