@@ -25,7 +25,7 @@ export default {
         const embed = new EmbedBuilder()
             .setColor(0x00FF00)
             .setTitle('تم المسح')
-            .setDescription(``تم مسح تاريخ ميلادك المسجل ب${interaction.guild.name} بنجاح`);
+            .setDescription(`تم مسح تاريخ ميلادك المسجل ب${interaction.guild.name} بنجاح`);
         await InteractionHelper.safeEditReply(interaction, {
             embeds: [embed]
         });
