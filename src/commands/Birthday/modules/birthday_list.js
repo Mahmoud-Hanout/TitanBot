@@ -54,7 +54,7 @@ export default {
             });
         }
 
-        birthdayList = `***ترتيب الأسماء والتواريخ بيتحدد حسب اللي سجل تاريخ ميلاده الأول*\n\n` + birthdayList;
+        birthdayList = `**ترتيب الأسماء والتواريخ بيتحدد حسب اللي سجل تاريخ ميلاده الأول**\n\n` + birthdayList;
 
         const embed = new EmbedBuilder()
             .setColor(0x00FF00)
