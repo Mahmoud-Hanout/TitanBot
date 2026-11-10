@@ -17,7 +17,7 @@ export default {
         .addSubcommand(subcommand =>
             subcommand
                 .setName('set')
-                .setDescription(`لتسجيل تاريخ ميلادك في ${interaction.guild.name}`)
+                .setDescription(`لتسجيل تاريخ ميلادك في السيرفر`)
                 .addIntegerOption(option =>
                     option
                         .setName('year')
@@ -46,27 +46,27 @@ export default {
         .addSubcommand(subcommand =>
             subcommand
                 .setName('info')
-                .setDescription(`علشان تعرف تاريخ ميلادك الشخصي المتسجل في ${interaction.guild.name} او تاريخ ميلاد شخص تاني.`)
+                .setDescription(`علشان تعرف تاريخ ميلادك الشخصي المتسجل في السيرفر او تاريخ ميلاد شخص تاني.`)
                 .addUserOption(option =>
                     option
                         .setName('user')
-                        .setDescription(`اختار الشخص اللي عايز تعرف تاريخ ميلاده المتسجل في ${interaction.guild.name}.`)
+                        .setDescription(`اختار الشخص اللي عايز تعرف تاريخ ميلاده المتسجل في السيرفر.`)
                         .setRequired(false)
                 )
         )
         .addSubcommand(subcommand =>
             subcommand
                 .setName('list')
-                .setDescription(`علشان تشوف قايمة فيها كل تواريخ الميلاد المسجله في ${interaction.guild.name} مع أسماء أصحابها.`)
+                .setDescription(`علشان تشوف قايمة فيها كل تواريخ الميلاد المسجله في السيرفر مع أسماء أصحابها.`)
         )
         .addSubcommand(subcommand =>
             subcommand
                 .setName('remove')
-                .setDescription(`علشان تمسح تاريخ ميلادك الشخصي المتسجل في ${interaction.guild.name} او تاريخ ميلاد شخص تاني.`)
+                .setDescription(`علشان تمسح تاريخ ميلادك الشخصي المتسجل في السيرفر او تاريخ ميلاد شخص تاني.`)
                 .addUserOption(option =>
                     option
                         .setName('user')
-                        .setDescription(`اختار الشخص اللي عايز تمسح تاريخ ميلاده المسجل في ${interaction.guild.name}.`)
+                        .setDescription(`اختار الشخص اللي عايز تمسح تاريخ ميلاده المسجل في السيرفر.`)
                         .setRequired(false)
                 )
         )
@@ -78,7 +78,7 @@ export default {
         .addSubcommand(subcommand =>
             subcommand
                 .setName('setchannel')
-                .setDescription(`علشان تقفل أو تشغل احتفالات أعياد الميلاد في ${interaction.guild.name} (لازم تكون مسؤل في السيرفر).`)
+                .setDescription(`علشان تقفل أو تشغل احتفالات أعياد الميلاد في السيرفر (لازم تكون مسؤل في السيرفر).`)
                 .addChannelOption(option =>
                     option
                         .setName('channel')
