@@ -9,13 +9,8 @@ export default {
         const targetUser = interaction.options.getUser('user') || interaction.user;
         const isSelf = targetUser.id === interaction.user.id;
         const guildId = interaction.guildId;
-
-        if (!isSelf) {
-            const isOwner = interaction.user.id === interaction.guild.ownerId;
-            const isAdmin = interaction.memberPermissions?.has(PermissionFlagsBits.Administrator) ||
-                            interaction.memberPermissions?.has(PermissionFlagsBits.ManageGuild);
-
-            if (!isOwner && !isAdmin) {
+        
+        if (!isSelf && interaction.user.id !== interaction.guild.ownerId) {
                 const noPermEmbed = new EmbedBuilder()
                     .setColor(0xFF0000)
                     .setTitle('غير مسموح')
@@ -33,17 +28,22 @@ export default {
             const embed = new EmbedBuilder()
                 .setColor(0xFF0000)
                 .setTitle('غير موجود')
-                .setDescription('مش موجود ليك تاريخ ميلاد مسجل اصلا علشان تمسحه.');
-            await InteractionHelper.safeEditReply(interaction, {
+                .setDescription(isSelf
+                    ? 'مش موجود ليك تاريخ ميلاد مسجل اصلا علشان تمسحه.'
+                    : `مفيش تاريخ ميلاد مسجل بأسم ${targetUser.toString()} اصلا علشان يتمسح.`);
+
+            return await InteractionHelper.safeEditReply(interaction, {
                 embeds: [embed]
             });
-            return;
         }
 
         const embed = new EmbedBuilder()
             .setColor(0x00FF00)
             .setTitle('تم المسح')
-            .setDescription(`تم مسح تاريخ ميلادك المسجل في ${interaction.guild.name} بنجاح.`);
+            .setDescription(isSelf
+                ? `تم مسح تاريخ ميلادك المسجل في ${interaction.guild.name} بنجاح.`
+                : `تم مسح تاريخ ميلاد ${targetUser.toString()} من ${interaction.guild.name} بنجاح.`);
+
         await InteractionHelper.safeEditReply(interaction, {
             embeds: [embed]
         });
