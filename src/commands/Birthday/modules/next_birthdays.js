@@ -64,10 +64,10 @@ export default {
             } else if (birthday.daysUntil === 1) {
                 timeUntil = '📅 **Tomorrow!**';
             } else {
-                timeUntil = `In ${birthday.daysUntil} day${birthday.daysUntil > 1 ? 's' : ''}`;
+                timeUntil = `${birthday.daysUntil} يوم`;
             }
 
-            birthdayList += `${displayIndex}. ** ${member.user.username} **\n **أسم المستخدم:** <@${birthday.userId}>\n📅 **تاريخ الميلاد:** ${birthday.year} ${birthday.monthName} ${birthday.day}\n⏰ **فاضل علي عيد ميلاده:** ${timeUntil}\n\n`;
+            birthdayList += `س${displayIndex}. ** ${member.user.username} **\n **أسم المستخدم:** <@${birthday.userId}>\n📅 **تاريخ الميلاد:** ${birthday.year} ${birthday.monthName} ${birthday.day}\n⏰ **فاضل علي عيد ميلاده:** ${timeUntil}\n\n`;
         }
 
         birthdayList += `Use /birthday set to add your birthday!`;
