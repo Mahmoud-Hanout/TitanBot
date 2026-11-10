@@ -17,11 +17,11 @@ export default {
         .addSubcommand(subcommand =>
             subcommand
                 .setName('set')
-                .setDescription('Set your birthday')
+                .setDescription(`لتسجيل تاريخ ميلادك في ${interaction.guild.name}`)
                 .addIntegerOption(option =>
                     option
                         .setName('year')
-                        .setDescription('Birth Year (1900-2024)')
+                        .setDescription('أكتب سنة ميلادك: ما بين سنة 1900 و سنة 2034')
                         .setRequired(true)
                         .setMinValue(1900)
                         .setMaxValue(2024)
@@ -29,7 +29,7 @@ export default {
                 .addIntegerOption(option =>
                     option
                         .setName('month')
-                        .setDescription('أختار من شهر ١ لي شهر ١٢)')
+                        .setDescription('أكتب شهر ميلادك: ما بين شهر 1 و شهر 12')
                         .setRequired(true)
                         .setMinValue(1)
                         .setMaxValue(12)
@@ -37,7 +37,7 @@ export default {
                 .addIntegerOption(option =>
                     option
                         .setName('day')
-                        .setDescription('Birth Day (1-31)')
+                        .setDescription('أكتب يوم ميلادك: ما بين يوم 1 و يوم 31')
                         .setRequired(true)
                         .setMinValue(1)
                         .setMaxValue(31)
@@ -46,27 +46,27 @@ export default {
         .addSubcommand(subcommand =>
             subcommand
                 .setName('info')
-                .setDescription('View birthday information')
+                .setDescription(`علشان تعرف تاريخ ميلادك الشخصي المتسجل في ${interaction.guild.name} او تاريخ ميلاد شخص تاني.`)
                 .addUserOption(option =>
                     option
                         .setName('user')
-                        .setDescription('User to check birthday for')
+                        .setDescription(`اختار الشخص اللي عايز تعرف تاريخ ميلاده المتسجل في ${interaction.guild.name}.`)
                         .setRequired(false)
                 )
         )
         .addSubcommand(subcommand =>
             subcommand
                 .setName('list')
-                .setDescription('List all birthdays in the server')
+                .setDescription(`علشان تشوف قايمة فيها كل تواريخ الميلاد المسجله في ${interaction.guild.name} مع أسماء أصحابها.`)
         )
         .addSubcommand(subcommand =>
             subcommand
                 .setName('remove')
-                .setDescription('Remove your birthday')
+                .setDescription(`علشان تمسح تاريخ ميلادك الشخصي المتسجل في ${interaction.guild.name} او تاريخ ميلاد شخص تاني.`)
                 .addUserOption(option =>
                     option
                         .setName('user')
-                        .setDescription('User to remove his birthday')
+                        .setDescription(`اختار الشخص اللي عايز تمسح تاريخ ميلاده المسجل في ${interaction.guild.name}`)
                         .setRequired(false)
                 )
         )
