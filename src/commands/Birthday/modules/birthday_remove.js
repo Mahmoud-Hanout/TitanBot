@@ -24,8 +24,8 @@ export default {
 
         const embed = new EmbedBuilder()
             .setColor(0x00FF00)
-            .setTitle('Birthday Removed')
-            .setDescription('Your birthday has been successfully removed from the server.');
+            .setTitle('تم المسح')
+            .setDescription(``تم مسح تاريخ ميلادك المسجل ب${interaction.guild.name} بنجاح`);
         await InteractionHelper.safeEditReply(interaction, {
             embeds: [embed]
         });
