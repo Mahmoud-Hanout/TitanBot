@@ -16,7 +16,7 @@ export default {
             const embed = new EmbedBuilder()
                 .setColor(0xFF0000)
                 .setTitle('غير موجود')
-                .setDescription('مفيش تواريخ ميلاد مسجلة في السيرفر في الوقت الحالي.');
+                .setDescription(`مفيش تواريخ ميلاد مسجلة في ${interaction.guild.name} في الوقت الحالي.`);
             return await InteractionHelper.safeEditReply(interaction, {
                 embeds: [embed]
             });
@@ -47,8 +47,8 @@ export default {
         if (displayIndex === 0) {
             const embed = new EmbedBuilder()
                 .setColor(0xFF0000)
-                .setTitle('No Birthdays')
-                .setDescription('No birthdays have been set by current server members.');
+                .setTitle('غير موجود')
+                .setDescription(`مفيش تواريخ ميلاد لان مفيش حد لسه سجل تاريخ ميلادة في ${interaction.guild.name}`);
             return await InteractionHelper.safeEditReply(interaction, {
                 embeds: [embed]
             });
@@ -59,7 +59,7 @@ export default {
         const embed = new EmbedBuilder()
             .setColor(0x00FF00)
             .setTitle(`قائمة تواريخ ميلاد في ${interaction.guild.name}`)
-            .setDescription(`${birthdayList}\n\n إجمالي عدد تواريخ الميلاد في ${interaction.guild.name} هو: ${displayIndex} birthday${displayIndex !== 1 ? 's' : ''}`);
+            .setDescription(`${birthdayList}\n\n إجمالي عدد تواريخ الميلاد في ${interaction.guild.name} هو: ${displayIndex}`);
 
         await InteractionHelper.safeEditReply(interaction, {
             embeds: [embed]
