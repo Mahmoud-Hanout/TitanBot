@@ -67,7 +67,7 @@ export default {
                 timeUntil = `In ${birthday.daysUntil} day${birthday.daysUntil > 1 ? 's' : ''}`;
             }
 
-            birthdayList += `${displayIndex}. **${member.username} ${member.displayName} ${member.userId} **\n<@${birthday.userId}>\n📅 **Date:** ${birthday.year} ${birthday.monthName} ${birthday.day}\n⏰ **Time:** ${timeUntil}\n\n`;
+            birthdayList += `${displayIndex}. ** ${member.user.username} **\n<@${birthday.userId}>\n📅 **Date:** ${birthday.year} ${birthday.monthName} ${birthday.day}\n⏰ **Time:** ${timeUntil}\n\n`;
         }
 
         birthdayList += `Use /birthday set to add your birthday!`;
