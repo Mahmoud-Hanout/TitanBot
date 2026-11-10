@@ -13,8 +13,8 @@ export default {
         if (next5.length === 0) {
             const embed = new EmbedBuilder()
                 .setColor(0xFF0000)
-                .setTitle('No Birthdays Found')
-                .setDescription('No birthdays have been set up in this server yet. Use `/birthday set` to add birthdays!');
+                .setTitle('مفيش أعياد ميلاد جايه')
+                .setDescription(`مفيش أعياد ميلاد جايه لأن مفيش تواريخ متسجله في ${interaction.guild.name}`);
             return await InteractionHelper.safeEditReply(interaction, {
                 embeds: [embed]
             });
@@ -49,7 +49,7 @@ export default {
             });
         }
 
-        let birthdayList = `🎂 \n\nHere are the next 5 birthdays in ${interaction.guild.name}:\n\n`;
+        let birthdayList = `🎂 \n\nربنا يديكو و يدينا الصحه و طوله العمر مع حبايبكم\n\n`;
         displayIndex = 0;
         for (const birthday of next5) {
             const member = await interaction.guild.members.fetch(birthday.userId).catch(() => null);
@@ -74,7 +74,7 @@ export default {
 
         const embed = new EmbedBuilder()
             .setColor(0x00FF00)
-            .setTitle('Next 5 Upcoming Birthdays')
+            .setTitle('الخمس أعياد ميلاد الجايين إن شاء الله')
             .setDescription(birthdayList);
 
         await InteractionHelper.safeEditReply(interaction, {
