@@ -1,7 +1,7 @@
 import { EmbedBuilder } from 'discord.js';
 import { deleteBirthday } from '../../../services/birthdayService.js';
-
 import { InteractionHelper } from '../../../utils/interactionHelper.js';
+
 export default {
     async execute(interaction, config, client) {
         await InteractionHelper.safeDefer(interaction);
