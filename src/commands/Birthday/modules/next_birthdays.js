@@ -35,7 +35,7 @@ export default {
             } else if (birthday.daysUntil === 1) {
                 timeUntil = '**بكرا**';
             } else {
-                timeUntil = `In ${birthday.daysUntil} day${birthday.daysUntil > 1 ? 's' : ''}`;
+                timeUntil = `${birthday.daysUntil} يوم`;
             }
         }
 
@@ -60,14 +60,14 @@ export default {
 
             let timeUntil = '';
             if (birthday.daysUntil === 0) {
-                timeUntil = '🎉 **Today!**';
+                timeUntil = '**أنهارده**';
             } else if (birthday.daysUntil === 1) {
-                timeUntil = '📅 **Tomorrow!**';
+                timeUntil = '**بكرا**';
             } else {
                 timeUntil = `${birthday.daysUntil} يوم`;
             }
 
-            birthdayList += `س${displayIndex}. ** ${member.user.username} **\n **أسم المستخدم:** <@${birthday.userId}>\n📅 **تاريخ الميلاد:** ${birthday.year} ${birthday.monthName} ${birthday.day}\n⏰ **فاضل علي عيد ميلاده:** ${timeUntil}\n\n`;
+            birthdayList += `رقم ${displayIndex}- ** ${member.user.username} **\n **أسم المستخدم:** <@${birthday.userId}>\n📅 **تاريخ الميلاد:** ${birthday.year} ${birthday.monthName} ${birthday.day}\n⏰ **فاضل علي عيد ميلاده:** ${timeUntil}\n\n`;
         }
 
         birthdayList += `Use /birthday set to add your birthday!`;
