@@ -54,11 +54,11 @@ export default {
             });
         }
 
-        birthdayList = `**أصحاب تواريخ الميلاد المسجلة في ${interaction.guild.name}**\n\n` + birthdayList;
+        birthdayList = `***ترتيب الأسماء والتواريخ بيتحدد حسب اللي سجل تاريخ ميلاده الأول*\n\n` + birthdayList;
 
         const embed = new EmbedBuilder()
             .setColor(0x00FF00)
-            .setTitle(`قائمة تواريخ ميلاد في ${interaction.guild.name}`)
+            .setTitle(`قايمة تواريخ الميلاد في ${interaction.guild.name}:`)
             .setDescription(`${birthdayList}\n\n إجمالي عدد تواريخ الميلاد في ${interaction.guild.name} هو: ${displayIndex}`);
 
         await InteractionHelper.safeEditReply(interaction, {
