@@ -18,7 +18,7 @@ export default {
                 .setColor(0xFF0000)
                 .setTitle('للأسف مفيش تاريخ ميلاد متسجل بأسمه')
                 .setDescription(targetUser.id === interaction.user.id 
-                    ? "أنت لسه مدخلتش تاريخ ميلادك، استخدم الأمر `/birthday set` و بعدها دخل تاريخ الميلاد."
+                    ? "أنت لسه مدخلتش تاريخ ميلادك، استخدم الأمر `birthday set/` و بعدها دخل تاريخ الميلاد."
                     : `مفيش تاريخ ميلاد للفحل ${targetUser.username} عشان لسه مسجلش تاريخ ميلاده.`);
             return await InteractionHelper.safeEditReply(interaction, {
                 embeds: [embed]
@@ -28,7 +28,7 @@ export default {
         const embed = new EmbedBuilder()
             .setColor(0x00FF00)
             .setTitle('معلومات تواريخ الميلاد')
-            .setDescription(`**تاريخ المستخدم:** ${birthdayData.monthName} ${birthdayData.day} ${birthdayData.year}\n**أسم المستخدم:** ${targetUser.toString()}`);
+            .setDescription(`**تاريخ المستخدم:** ${birthdayData.day} ${birthdayData.monthName} ${birthdayData.year}\n**أسم المستخدم:** ${targetUser.toString()}`);
 
         await InteractionHelper.safeEditReply(interaction, {
             embeds: [embed]
