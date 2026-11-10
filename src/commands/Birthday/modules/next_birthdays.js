@@ -70,7 +70,7 @@ export default {
             birthdayList += `رقم ${displayIndex}- ** ${member.user.username} **\n **أسم المستخدم:** <@${birthday.userId}>\n📅 **تاريخ الميلاد:** X ${birthday.year} ${birthday.monthName} ${birthday.day}\n⏰ **فاضل علي عيد ميلاده:** ${timeUntil}\n\n`;
         }
 
-        birthdayList += `Use /birthday set to add your birthday!`;
+        birthdayList += `**كل سنة و انتو طيبين و بخير.**`;
 
         const embed = new EmbedBuilder()
             .setColor(0x00FF00)
