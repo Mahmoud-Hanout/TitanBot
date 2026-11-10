@@ -6,10 +6,28 @@ export default {
     async execute(interaction, config, client) {
         await InteractionHelper.safeDefer(interaction);
 
-        const userId = interaction.user.id;
+        const targetUser = interaction.options.getUser('user') || interaction.user;
+        const isSelf = targetUser.id === interaction.user.id;
         const guildId = interaction.guildId;
 
-        const result = await deleteBirthday(client, guildId, userId);
+        if (!isSelf) {
+            const isOwner = interaction.user.id === interaction.guild.ownerId;
+            const isAdmin = interaction.memberPermissions?.has(PermissionFlagsBits.Administrator) ||
+                            interaction.memberPermissions?.has(PermissionFlagsBits.ManageGuild);
+
+            if (!isOwner && !isAdmin) {
+                const noPermEmbed = new EmbedBuilder()
+                    .setColor(0xFF0000)
+                    .setTitle('غير مسموح')
+                    .setDescription('مينفعش تمسح تاريخ ميلاد شخص تاني غيرك علشان مش معاك الصلاحية اللي تخليك تعمل كدا.');
+                
+                return await InteractionHelper.safeEditReply(interaction, {
+                    embeds: [noPermEmbed]
+                });
+            }
+        }
+
+        const result = await deleteBirthday(client, guildId, targetUser.id);
 
         if (result.status === 'not_found') {
             const embed = new EmbedBuilder()
@@ -25,7 +43,7 @@ export default {
         const embed = new EmbedBuilder()
             .setColor(0x00FF00)
             .setTitle('تم المسح')
-            .setDescription(`تم مسح تاريخ ميلادك المسجل في ${interaction.guild.name} بنجاح`);
+            .setDescription(`تم مسح تاريخ ميلادك المسجل في ${interaction.guild.name} بنجاح.`);
         await InteractionHelper.safeEditReply(interaction, {
             embeds: [embed]
         });
