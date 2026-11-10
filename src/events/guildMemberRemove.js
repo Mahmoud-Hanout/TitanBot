@@ -6,7 +6,7 @@ import { getServerCounters, updateCounter } from '../services/serverstatsService
 import { getGuildBirthdays, deleteBirthday } from '../utils/database.js';
 import { deleteUserLevelData } from '../services/leveling/leveling.js';
 import { logger } from '../utils/logger.js';
-import { GREET_CONFIG } from '../utils/greetConfig.js'; // <-- استيراد ملف الإعدادات الثابتة
+import { GREET_CONFIG } from '../utils/greetConfig.js';
 
 export default {
   name: Events.GuildMemberRemove,
@@ -31,9 +31,10 @@ export default {
                     const canEmbed = permissions.has(PermissionFlagsBits.EmbedLinks);
 
                     if (!canEmbed) {
+                        // في حال القناة لا تدعم Embed نرسل نصاً عادياً بدون منشن خارجي
                         await channel.send({
-                            content: GREET_CONFIG.goodbye.ping ? `<@${user.id}> ${goodbyeMessage}` : goodbyeMessage,
-                            allowedMentions: GREET_CONFIG.goodbye.ping ? { users: [user.id] } : { parse: [] }
+                            content: goodbyeMessage,
+                            allowedMentions: { parse: [] }
                         });
                     } else {
                         const embed = new EmbedBuilder()
@@ -42,8 +43,9 @@ export default {
                             .setColor(getColor('error'))
                             .setThumbnail(user.displayAvatarURL())
                             .addFields(
-                                { name: 'العضو', value: `${user.tag} (${user.id})`, inline: true },
-                                { name: 'الحسابات المتبقية', value: guild.memberCount.toString(), inline: true }
+                                { name: 'اسم المستخدم:', value: `${user.displayName}`, inline: true },
+                                { name: 'اسم الحساب:', value: `${user.username}`, inline: true },
+                                { name: 'الرقم القومي لحساب المستخدم:', value: `(${user.id})`, inline: false }
                             )
                             .setTimestamp()
                             .setFooter({ text: `Goodbye from ${guild.name}!` });
@@ -52,9 +54,8 @@ export default {
                             embed.setImage(GREET_CONFIG.goodbye.image);
                         }
 
+                        // إرسال الـ Embed فقط بدون منشن خارجي (برا المربع) نهائياً
                         await channel.send({
-                            content: GREET_CONFIG.goodbye.ping ? `<@${user.id}>` : undefined,
-                            allowedMentions: GREET_CONFIG.goodbye.ping ? { users: [user.id] } : { parse: [] },
                             embeds: [embed]
                         });
                     }
@@ -62,7 +63,7 @@ export default {
             }
         }
 
-        // بقية العمليات التلقائية (اللوق، العدادات، إلخ) تظل تعمل كالمعتاد
+        // بقية العمليات التلقائية للبوت (اللوق، العدادات، إلخ) تظل تعمل كالمعتاد
         try {
             await logEvent({
                 client: member.client,
