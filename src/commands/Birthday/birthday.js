@@ -66,7 +66,7 @@ export default {
                 .addUserOption(option =>
                     option
                         .setName('user')
-                        .setDescription(`اختار الشخص اللي عايز تمسح تاريخ ميلاده المسجل في ${interaction.guild.name}`)
+                        .setDescription(`اختار الشخص اللي عايز تمسح تاريخ ميلاده المسجل في ${interaction.guild.name}.`)
                         .setRequired(false)
                 )
         )
@@ -78,11 +78,11 @@ export default {
         .addSubcommand(subcommand =>
             subcommand
                 .setName('setchannel')
-                .setDescription('Set or disable the channel for birthday announcements. (Manage Server required)')
+                .setDescription(`علشان تقفل أو تشغل احتفالات أعياد الميلاد في ${interaction.guild.name} (لازم تكون مسؤل في السيرفر).`)
                 .addChannelOption(option =>
                     option
                         .setName('channel')
-                        .setDescription('The text channel for announcements. Leave empty to disable.')
+                        .setDescription('أختار المكان اللي هيتم فيه كتابة بوست احتفال الأعياد الميلادية (سيبها فاضية لو عايز تقفلها).')
                         .addChannelTypes(ChannelType.GuildText)
                         .setRequired(false)
                 )
