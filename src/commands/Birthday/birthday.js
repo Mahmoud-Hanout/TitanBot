@@ -73,7 +73,7 @@ export default {
         .addSubcommand(subcommand =>
             subcommand
                 .setName('next')
-                .setDescription('Show upcoming birthdays')
+                .setDescription('علشان تعرف ايه أعياد الميلاد اللي عليهم الدور.')
         )
         .addSubcommand(subcommand =>
             subcommand
