@@ -31,9 +31,9 @@ export default {
 
             let timeUntil = '';
             if (birthday.daysUntil === 0) {
-                timeUntil = '🎉 **Today!**';
+                timeUntil = '**أنهارده**';
             } else if (birthday.daysUntil === 1) {
-                timeUntil = '📅 **Tomorrow!**';
+                timeUntil = '**بكرا**';
             } else {
                 timeUntil = `In ${birthday.daysUntil} day${birthday.daysUntil > 1 ? 's' : ''}`;
             }
