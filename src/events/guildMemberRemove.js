@@ -43,9 +43,9 @@ export default {
                             .setColor(getColor('error'))
                             .setThumbnail(user.displayAvatarURL())
                             .addFields(
-                                { name: 'اسم المستخدم:', value: `${user.displayName}`, inline: true },
-                                { name: 'اسم الحساب:', value: `${user.username}`, inline: true },
-                                { name: 'الرقم القومي لحساب المستخدم:', value: `(${user.id})`, inline: false }
+                                { name: `اسم المستخدم: ${user.displayName}`},
+                                { name: `اسم الحساب: ${user.username}`},
+                                { name: `الرقم القومي لحساب المستخدم: (${user.id})`}
                             )
                             .setTimestamp()
                             .setFooter({ text: `Goodbye from ${guild.name}!` });
