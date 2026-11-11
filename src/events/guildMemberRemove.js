@@ -38,7 +38,7 @@ export default {
                         });
                     } else {
                         const embed = new EmbedBuilder()
-                            .setTitle('👋 غادر السيرفر')
+                            .setTitle('غار من السيرفر')
                             .setDescription(goodbyeMessage)
                             .setColor(getColor('error'))
                             .setThumbnail(user.displayAvatarURL())
