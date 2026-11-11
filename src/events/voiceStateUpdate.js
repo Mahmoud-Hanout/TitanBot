@@ -30,10 +30,10 @@ export default {
                 .setTitle('حد دخل يرغي')
                 .setThumbnail(user.displayAvatarURL({ dynamic: true }))
                 .setDescription(
-                    `**العضو:** ${user.toString()} \n` +
-                    `**اسم المستخدم:** ${user.displayName}\n` +
-                    `**الروم الصوتية:** ${voiceChannel ? voiceChannel.toString() : 'روم صوتي'}\n\n` +
-                    `⏰ **الوقت:** <t:${Math.floor(Date.now() / 1000)}:F>`
+                    `**الفحل:** ${user.toString()} \n` +
+                    `**اسم الحساب:** ${user.displayName}\n` +
+                    `**الأوضه اللي دخلها:** ${voiceChannel ? voiceChannel.toString() : 'روم صوتي'}\n\n` +
+                    `**الوقت:** <t:${Math.floor(Date.now() / 1000)}:F>`
                 );
 
             if (channel.permissionsFor(me)?.has([PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionFlagsBits.EmbedLinks])) {
@@ -55,10 +55,10 @@ export default {
                 .setTitle('حد اتخنق من الرغي')
                 .setThumbnail(user.displayAvatarURL({ dynamic: true }))
                 .setDescription(
-                    `**العضو:** ${user.toString()} \n` +
+                    `**الفحل:** ${user.toString()} \n` +
                     `**اسم المستخدم:** ${user.displayName}\n` +
-                    `**الروم التي غادرها:** ${voiceChannel ? voiceChannel.toString() : 'روم صوتي'}\n\n` +
-                    `⏰ **الوقت:** <t:${Math.floor(Date.now() / 1000)}:F>`
+                    `**الأوضه اللي خرج منها:** ${voiceChannel ? voiceChannel.toString() : 'روم صوتي'}\n\n` +
+                    `**الوقت:** <t:${Math.floor(Date.now() / 1000)}:F>`
                 );
 
             if (channel.permissionsFor(me)?.has([PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionFlagsBits.EmbedLinks])) {
@@ -81,11 +81,11 @@ export default {
                 .setTitle('🔀 انتقال بين الرومات الصوتية')
                 .setThumbnail(user.displayAvatarURL({ dynamic: true }))
                 .setDescription(
-                    `**العضو:** ${user.toString()} \n` +
+                    `**الفحل:** ${user.toString()} \n` +
                     `**اسم المستخدم:** ${user.displayName}\n` +
-                    `**من روم:** ${oldVoiceChannel ? oldVoiceChannel.toString() : 'روم قديم'}\n` +
-                    `**إلى روم:** ${newVoiceChannel ? newVoiceChannel.toString() : 'روم جديد'}\n\n` +
-                    `⏰ **الوقت:** <t:${Math.floor(Date.now() / 1000)}:F>`
+                    `**من الأوضه دي:** ${oldVoiceChannel ? oldVoiceChannel.toString() : 'روم قديم'}\n` +
+                    `**للأوضه دي:** ${newVoiceChannel ? newVoiceChannel.toString() : 'روم جديد'}\n\n` +
+                    `**الوقت:** <t:${Math.floor(Date.now() / 1000)}:F>`
                 );
 
             if (channel.permissionsFor(me)?.has([PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionFlagsBits.EmbedLinks])) {
