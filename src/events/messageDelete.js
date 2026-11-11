@@ -20,7 +20,7 @@ export default {
         const deleteTime = new Date(); // وقت الحذف الحالي
 
         // الانتظار لضمان تسجيل ديسكورد للاسم في الـ Audit Logs
-        await new Promise(resolve => setTimeout(resolve, 2500));
+        await new Promise(resolve => setTimeout(resolve, 2000));
 
         // جلب الـ Audit Logs لمعرفة من حذف الرسالة
         const fetchedLogs = await message.guild.fetchAuditLogs({
@@ -32,16 +32,17 @@ export default {
         let executor = message.author.toString(); 
 
         if (fetchedLogs && fetchedLogs.entries.size > 0) {
-            // ترتيب السجلات من الأحدث للأقدم والبحث عن العملية الصحيحة
-            const sortedEntries = [...fetchedLogs.entries.values()].sort((a, b) => b.createdTimestamp - a.createdTimestamp);
+            // تحويل السجلات إلى مصفوفة وترتيبها من الأحدث للأقدم
+            const entries = [...fetchedLogs.entries.values()];
             
-            const deletionLog = sortedEntries.find(entry => 
+            // البحث عن أحدث لوق حذف يخص رسائل صاحب هذا الحساب ويكون تم في غضون آخر 30 ثانية
+            const deletionLog = entries.find(entry => 
                 entry.target.id === message.author.id && 
-                Math.abs(Date.now() - entry.createdTimestamp) < 8000 // فحص صارم للفارق الزمني (أقل من 8 ثوانٍ)
+                Math.abs(Date.now() - entry.createdTimestamp) < 30000
             );
 
             if (deletionLog) {
-                // إذا وجدنا سجل حذف حقيقي قام به إداري آخر، نأخذ اسمه
+                // إذا وجدنا سجل الحذف، نأخذ من قام بالعملية فوراً
                 executor = deletionLog.executor.toString();
             }
         }
@@ -54,14 +55,7 @@ export default {
             .setColor(0xFF0000)
             .setTitle('في رسالة أتمسحت و دي البيانات بتاعتها:')
             .setThumbnail(message.author.displayAvatarURL({ dynamic: true }))
-            .setDescription(
-                `**اللي مسح الرسالة:** ${executor}\n` +
-                `**اللي بعت الرسالة:** ${message.author.toString()}\n` +
-                `**المكان اللي اتبعتت فيه الرسالة:** ${message.channel.toString()}\n\n` +
-                `**الوقت اللي اتبعتت فيه الرسالة:** (<t:${sendTimestamp}:R>)\n<t:${sendTimestamp}:F>\n` +
-                `**الوقت اللي اتمسحت فيه الرسالة:** (<t:${deleteTimestamp}:R>)\n<t:${deleteTimestamp}:F>\n\n` +
-                `**محتوى الرسالة نفسها:**\n\`\`\`${message.content || "(رسالة فارغة أو ميديا فقط)"}\`\`\``
-            )
+            .setDescription(`**اللي مسح الرسالة:** ${executor}\n**اللي بعت الرسالة:** ${message.author.toString()}\n**المكان اللي اتبعتت فيه الرسالة:** ${message.channel.toString()}\n\n**الوقت اللي اتبعتت فيه الرسالة:** (<t:${sendTimestamp}:R>)\n<t:${sendTimestamp}:F>\n**الوقت اللي اتمسحت فيه الرسالة:** (<t:${deleteTimestamp}:R>)\n<t:${deleteTimestamp}:F>\n\n**محتوى الرسالة نفسها:**\n\`\`\`${message.content || "(رسالة فارغة أو ميديا فقط)"}\`\`\``)
             .setTimestamp();
 
         if (message.attachments.size > 0) {
