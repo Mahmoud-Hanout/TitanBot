@@ -16,7 +16,6 @@ export default {
     try {
         const { guild, user } = member;
         
-        // 🔴 تفعيل رسالة المغادرة الثابتة من الكود
         const goodbyeChannelId = GREET_CONFIG.goodbye?.channelId;
 
         if (goodbyeChannelId) {
@@ -31,7 +30,6 @@ export default {
                     const canEmbed = permissions.has(PermissionFlagsBits.EmbedLinks);
 
                     if (!canEmbed) {
-                        // في حال القناة لا تدعم Embed نرسل نصاً عادياً بدون منشن خارجي
                         await channel.send({
                             content: goodbyeMessage,
                             allowedMentions: { parse: [] }
@@ -39,12 +37,9 @@ export default {
                     } else {
                         const embed = new EmbedBuilder()
                             .setTitle('غار من السيرفر')
-                            .setDescription(goodbyeMessage)
+                            .setDescription(`اسم المستخدم: ${user.displayName} \n أسم الحساب: ${user.username} \n الرقم القومي لحساب المستخدم: ${user.id}`)
                             .setColor(getColor('error'))
                             .setThumbnail(user.displayAvatarURL())
-                            .addFields(
-                                { name: `اسم المستخدم: ${user.displayName} \n أسم الحساب: ${user.username} \n الرقم القومي لحساب المستخدم: ${user.id}`},
-                            )
                             .setTimestamp()
                             .setFooter({ text: `Goodbye from ${guild.name}!` });
 
