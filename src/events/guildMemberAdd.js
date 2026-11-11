@@ -5,7 +5,7 @@ import { logEvent, EVENT_TYPES } from '../services/loggingService.js';
 import { getServerCounters, updateCounter } from '../services/serverstatsService.js';
 import { setBirthday as dbSetBirthday } from '../utils/database.js';
 import { logger } from '../utils/logger.js';
-import { GREET_CONFIG } from '../utils/greetConfig.js'; // <-- استيراد ملف الإعدادات الثابتة
+import { GREET_CONFIG } from '../utils/greetConfig.js'; // استيراد ملف الإعدادات الثابتة
 
 export default {
   name: Events.GuildMemberAdd,
@@ -26,23 +26,25 @@ export default {
             if (permissions?.has([PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages])) {
                 const formatData = { user, guild, member };
                 const welcomeMessage = formatWelcomeMessage(GREET_CONFIG.welcome.message, formatData);
-                const messageContent = GREET_CONFIG.welcome.ping ? user.toString() : null;
-
                 const canEmbed = permissions.has(PermissionFlagsBits.EmbedLinks);
 
                 if (!canEmbed) {
                     await channel.send({
-                        content: messageContent ? `${messageContent}\n${welcomeMessage}` : welcomeMessage
+                        content: welcomeMessage
                     });
                 } else {
+                    // دمج البيانات داخل الوصف لمنع ديسكورد من جعل النصوص Bold تلقائياً
+                    const embeddedDescription = 
+                        `${welcomeMessage}\n\n` +
+                        `اسم المستخدم: ${user.displayName}\n` +
+                        `أسم الحساب: ${user.username}\n` +
+                        `الرقم القومي لحساب المستخدم: ${user.id}`;
+
                     const embed = new EmbedBuilder()
                         .setColor(getColor('success'))
-                        .setTitle('نور السيرفر')
-                        .setDescription(welcomeMessage)
+                        .setTitle('🎉 منور السيرفر!')
+                        .setDescription(embeddedDescription)
                         .setThumbnail(user.displayAvatarURL())
-                        .addFields(
-                            { name: 'العضو', value: `${user.tag} (${user.id})`, inline: true },
-                        )
                         .setTimestamp()
                         .setFooter({ text: `Welcome to ${guild.name}!` });
                     
@@ -50,8 +52,8 @@ export default {
                         embed.setImage(GREET_CONFIG.welcome.image);
                     }
                     
+                    // إرسال المربع مباشرة بدون منشن خارجي برا المربع
                     await channel.send({ 
-                        content: messageContent,
                         embeds: [embed] 
                     });
                 }
