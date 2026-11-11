@@ -33,12 +33,8 @@ export default {
                         content: welcomeMessage
                     });
                 } else {
-                    // دمج البيانات داخل الوصف لمنع ديسكورد من جعل النصوص Bold تلقائياً
                     const embeddedDescription = 
-                        `${welcomeMessage}\n\n` +
-                        `اسم المستخدم: ${user.displayName}\n` +
-                        `أسم الحساب: ${user.username}\n` +
-                        `الرقم القومي لحساب المستخدم: ${user.id}`;
+                        `${welcomeMessage}\n\n اسم المستخدم: ${user.displayName} \n أسم الحساب: ${user.username}\n الرقم القومي لحساب المستخدم: ${user.id}`;
 
                     const embed = new EmbedBuilder()
                         .setColor(getColor('success'))
