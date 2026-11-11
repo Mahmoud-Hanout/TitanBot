@@ -38,7 +38,7 @@ export default {
 
                     const embed = new EmbedBuilder()
                         .setColor(getColor('success'))
-                        .setTitle('🎉 منور السيرفر!')
+                        .setTitle('نور السيرفر')
                         .setDescription(embeddedDescription)
                         .setThumbnail(user.displayAvatarURL())
                         .setTimestamp()
