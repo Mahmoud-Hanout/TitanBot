@@ -1,10 +1,6 @@
-import { Events } from 'discord.js';
-import { logEvent, EVENT_TYPES } from '../services/loggingService.js';
+import { Events, EmbedBuilder, PermissionFlagsBits, AuditLogEvent } from 'discord.js';
+import { LOG_CONFIG } from '../utils/messageDeleteLog.js'; // <-- تحديث مسار الاستيراد للملف الجديد
 import { logger } from '../utils/logger.js';
-import { getReactionRoleMessage, deleteReactionRoleMessage } from '../services/reactionRoleService.js';
-import { formatLogLine } from '../utils/logging/logEmbeds.js';
-
-const MAX_LOGGED_MESSAGE_CONTENT_LENGTH = 1024;
 
 export default {
   name: Events.MessageDelete,
@@ -12,73 +8,71 @@ export default {
 
   async execute(message) {
     try {
-      if (!message.guild) return;
+        // تجاهل البوتات والرسائل خارج السيرفرات
+        if (message.partial || message.author?.bot || !message.guild) return;
 
-      try {
-        const reactionRoleData = await getReactionRoleMessage(message.client, message.guild.id, message.id);
-        if (reactionRoleData) {
-          await deleteReactionRoleMessage(message.client, message.guild.id, message.id);
-          logger.info(`Cleaned up reaction role database entry for manually deleted message ${message.id} in guild ${message.guild.id}`);
+        const logChannelId = LOG_CONFIG.deleteLogChannelId;
+        if (!logChannelId || logChannelId === "" || logChannelId.includes("ضع_هنا")) return;
 
-          try {
-            await logEvent({
-              client: message.client,
-              guildId: message.guild.id,
-              eventType: EVENT_TYPES.REACTION_ROLE_DELETE,
-              data: {
-                title: 'Reaction Role Removed',
-                lines: [
-                  formatLogLine('Channel', message.channel ? `${message.channel.name} ${message.channel.toString()}` : 'Unknown'),
-                  formatLogLine('Message ID', `\`${message.id}\``),
-                  formatLogLine('Cleanup', 'Database entry removed automatically'),
-                ],
-                quoted: true,
-              }
-            });
-          } catch (logCleanupError) {
-            logger.warn('Failed to log reaction role cleanup after manual message deletion:', logCleanupError);
-          }
+        const channel = message.guild.channels.cache.get(logChannelId);
+        if (!channel) return;
+
+        const deleteTime = new Date(); // وقت الحذف الحالي
+
+        // انتظار ثانية للتأكد من تسجيل ديسكورد للـ Audit Log
+        await new Promise(resolve => setTimeout(resolve, 1000));
+
+        // جلب الـ Audit Logs لمعرفة من حذف الرسالة
+        const fetchedLogs = await message.guild.fetchAuditLogs({
+            limit: 1,
+            type: AuditLogEvent.MessageDelete,
+        }).catch(() => null);
+
+        const deletionLog = fetchedLogs?.entries.first();
+        let executor = "غير معروف (مسحها بنفسه أو انتهت صلاحية اللوق)";
+
+        if (deletionLog) {
+            const { target, executor: userWhoDeleted } = deletionLog;
+            if (target.id === message.author.id && (Date.now() - deletionLog.createdTimestamp) < 5000) {
+                executor = userWhoDeleted.toString();
+            } else {
+                executor = message.author.toString();
+            }
+        } else {
+            executor = message.author.toString();
         }
-      } catch (reactionRoleCleanupError) {
-        logger.warn(`Failed to clean up reaction role data for deleted message ${message.id}:`, reactionRoleCleanupError);
-      }
 
-      if (message.author?.bot) return;
+        // تحويل أوقات الإرسال والحذف لتنسيق ديسكورد الزمني بالثواني
+        const sendTimestamp = Math.floor(message.createdTimestamp / 1000);
+        const deleteTimestamp = Math.floor(deleteTime.getTime() / 1000);
 
-      const metaLines = [
-        formatLogLine('Channel', message.channel ? `${message.channel.name} ${message.channel.toString()}` : 'Unknown'),
-        formatLogLine('Message ID', `\`${message.id}\``),
-        formatLogLine('Message author', message.author ? message.author.toString() : 'Unknown'),
-        formatLogLine('Message created', `<t:${Math.floor(message.createdTimestamp / 1000)}:R>`),
-      ];
+        const embed = new EmbedBuilder()
+            .setColor(0xFF0000)
+            .setTitle('🗑️ تم مسح رسالة وتوثيق الوقت')
+            .setThumbnail(message.author.displayAvatarURL({ dynamic: true }))
+            .setDescription(
+                `**المرسل:** ${message.author.toString()} (${message.author.username})\n` +
+                `**الأوضة:** ${message.channel.toString()}\n` +
+                `**بواسطة:** ${executor}\n\n` +
+                `**⏰ وقت الإرسال:** <t:${sendTimestamp}:F> (<t:${sendTimestamp}:R>)\n` +
+                `**⏰ وقت الحذف:** <t:${deleteTimestamp}:F> (<t:${deleteTimestamp}:R>)\n\n` +
+                `**محتوى الرسالة:**\n\`\`\`${message.content || "(رسالة فارغة أو ميديا فقط)"}\`\`\``
+            )
+            .setTimestamp();
 
-      let messageBody = null;
-      if (message.content) {
-        messageBody = message.content.length > MAX_LOGGED_MESSAGE_CONTENT_LENGTH
-          ? `${message.content.substring(0, MAX_LOGGED_MESSAGE_CONTENT_LENGTH - 3)}...`
-          : message.content;
-      }
-
-      if (message.attachments.size > 0) {
-        metaLines.push(formatLogLine('Attachments', String(message.attachments.size)));
-      }
-
-      await logEvent({
-        client: message.client,
-        guildId: message.guild.id,
-        eventType: EVENT_TYPES.MESSAGE_DELETE,
-        data: {
-          title: 'Message deleted',
-          lines: metaLines,
-          quoted: true,
-          section: messageBody ? { title: 'Message', body: messageBody || '*(empty message)*' } : null,
-          userId: message.author?.id,
-          channelId: message.channel.id,
+        // عرض روابط المرفقات أو الصور إذا وجدت
+        if (message.attachments.size > 0) {
+            const attachmentUrls = message.attachments.map(a => a.url).join('\n');
+            embed.addFields({ name: 'المرفقات الممسوحة:', value: attachmentUrls });
         }
-      });
+
+        const me = message.guild.members.me;
+        if (channel.permissionsFor(me)?.has([PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionFlagsBits.EmbedLinks])) {
+            await channel.send({ embeds: [embed] });
+        }
 
     } catch (error) {
-      logger.error('Error in messageDelete event:', error);
+        logger.error('Error in messageDelete event:', error);
     }
   }
 };
