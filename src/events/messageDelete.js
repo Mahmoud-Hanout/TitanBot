@@ -50,9 +50,7 @@ export default {
             .setColor(0xFF0000)
             .setTitle('في رسالة أتمسحت و دي البيانات بتاعتها:')
             .setThumbnail(message.author.displayAvatarURL({ dynamic: true }))
-            .setDescription(`**اللي بعت الرسالة:** ${message.author.toString()} \n **المكان اللي اتبعتت فيه الرسالة:** ${message.channel.toString()}\n **اللي مسح الرسالة:** ${executor}\n\n **الوقت اللي اتبعتت فيه الرسالة:** <t:${sendTimestamp}:F> \n (<t:${sendTimestamp}:R>)\n **الوقت اللي اتمسحت فيه الرسالة:** <t:${deleteTimestamp}:F> \n (<t:${deleteTimestamp}:R>)\n\n` +
-                `**محتوى الرسالة:**\n\`\`\`${message.content || "(رسالة فارغة أو ميديا فقط)"}\`\`\``
-            )
+            .setDescription(`**اللي مسح الرسالة:** ${executor}\n**اللي بعت الرسالة:** ${message.author.toString()}\n**المكان اللي اتبعتت فيه الرسالة:** ${message.channel.toString()}\n\n**الوقت اللي اتبعتت فيه الرسالة:** (<t:${sendTimestamp}:R>)\n<t:${sendTimestamp}:F>\n**الوقت اللي اتمسحت فيه الرسالة:** (<t:${deleteTimestamp}:R>)\n<t:${deleteTimestamp}:F>\n\n**محتوى الرسالة نفسها:**\n\`\`\`${message.content || "(رسالة فارغة أو ميديا فقط)"}\`\`\``)
             .setTimestamp();
 
         // عرض روابط المرفقات أو الصور إذا وجدت
