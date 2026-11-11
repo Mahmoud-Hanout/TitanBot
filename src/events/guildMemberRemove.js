@@ -37,7 +37,7 @@ export default {
                     } else {
                         const embed = new EmbedBuilder()
                             .setTitle('غار من السيرفر')
-                            .setDescription(`اسم المستخدم: ${user.displayName} \n أسم الحساب: ${user.username} \n الرقم القومي لحساب المستخدم: ${user.id}`)
+                            .setDescription(`${goodbyeMessage}\n\n اسم المستخدم: ${user.displayName} \n أسم الحساب: ${user.username} \n الرقم القومي لحساب المستخدم: ${user.id}`)
                             .setColor(getColor('error'))
                             .setThumbnail(user.displayAvatarURL())
                             .setTimestamp()
