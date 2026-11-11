@@ -37,12 +37,11 @@ export default {
                 } else {
                     const embed = new EmbedBuilder()
                         .setColor(getColor('success'))
-                        .setTitle('🎉 منور السيرفر!')
+                        .setTitle('نور السيرفر')
                         .setDescription(welcomeMessage)
                         .setThumbnail(user.displayAvatarURL())
                         .addFields(
                             { name: 'العضو', value: `${user.tag} (${user.id})`, inline: true },
-                            { name: 'عددنا الآن', value: guild.memberCount.toString(), inline: true }
                         )
                         .setTimestamp()
                         .setFooter({ text: `Welcome to ${guild.name}!` });
