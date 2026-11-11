@@ -48,10 +48,9 @@ export default {
 
         const embed = new EmbedBuilder()
             .setColor(0xFF0000)
-            .setTitle('في رسالة أتمسحت و دي البيانات بتاعتها:)
+            .setTitle('في رسالة أتمسحت و دي البيانات بتاعتها:')
             .setThumbnail(message.author.displayAvatarURL({ dynamic: true }))
-            .setDescription(
-                `**اللي بعت الرسالة:** ${message.author.toString()} \n **المكان اللي اتبعتت فيه الرسالة:** ${message.channel.toString()}\n **اللي مسح الرسالة:** ${executor}\n\n **الوقت اللي اتبعتت فيه الرسالة:** <t:${sendTimestamp}:F> \n (<t:${sendTimestamp}:R>)\n **الوقت اللي اتمسحت فيه الرسالة:** <t:${deleteTimestamp}:F> \n (<t:${deleteTimestamp}:R>)\n\n` +
+            .setDescription(`**اللي بعت الرسالة:** ${message.author.toString()} \n **المكان اللي اتبعتت فيه الرسالة:** ${message.channel.toString()}\n **اللي مسح الرسالة:** ${executor}\n\n **الوقت اللي اتبعتت فيه الرسالة:** <t:${sendTimestamp}:F> \n (<t:${sendTimestamp}:R>)\n **الوقت اللي اتمسحت فيه الرسالة:** <t:${deleteTimestamp}:F> \n (<t:${deleteTimestamp}:R>)\n\n` +
                 `**محتوى الرسالة:**\n\`\`\`${message.content || "(رسالة فارغة أو ميديا فقط)"}\`\`\``
             )
             .setTimestamp();
