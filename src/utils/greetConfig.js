@@ -8,7 +8,7 @@ export const GREET_CONFIG = {
   
     goodbye: {
         channelId: "1321428149602488391", 
-        message: "للاسف {username} غادر السيرفر.. الحسابات المتبقية: {memberCount}", 
+        message: "مع عدم الأسف غار من السيرفر {username} و خسر فحوليته بمجرد خروجه من السيرفر", 
         image: "https://cdn.discordapp.com/attachments/882077635902079076/1569874231997505536/image_14f7b183.jpg?ex=6af50acf&is=6af3b94f&hm=6b86e55c66636a94832d63d3e36ae257eb6883dcfa88d8733749c593cce0e05f&",
         ping: true
     },
