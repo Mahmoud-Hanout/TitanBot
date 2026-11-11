@@ -1,19 +1,18 @@
 export const GREET_CONFIG = {
     welcome: {
         channelId: "1321428134091952169", 
-        message: "منور يا {user} في سيرفرنا الرائع! دلوقتي عددنا بقى {memberCount}", 
-        image: "https://cdn.discordapp.com/attachments/882077635902079076/1569813662359621652/Untitled-1.png?ex=6af4d266&is=6af380e6&hm=77dd9d9fba76ddab192719ef5bbfbc7b2615399c1fe31f476917d0020ccce59b&", // رابط صورة الترحيب (سيبه فاضي "" لو مش عايز صورة)
-        ping: true // لو عايزه يعمل منشن للعضو وهو داخل خليها true، لو مش عايزه خليها false
+        message: "نورنا للتو و اللحظه الفحل {user} متنساش تبص في روم <#1566979116459102349", 
+        image: "https://cdn.discordapp.com/attachments/882077635902079076/1569874232316530698/image_331c361a.jpg?ex=6af50acf&is=6af3b94f&hm=7850b66373ee9ea5d69fc6842af5809c1290f455a332e3f9ec72c85f2865b481&",
+        ping: true
     },
   
     goodbye: {
         channelId: "1321428149602488391", 
         message: "للاسف {username} غادر السيرفر.. الحسابات المتبقية: {memberCount}", 
-        image: "https://cdn.discordapp.com/attachments/882077635902079076/1569813662359621652/Untitled-1.png?ex=6af4d266&is=6af380e6&hm=77dd9d9fba76ddab192719ef5bbfbc7b2615399c1fe31f476917d0020ccce59b&", // رابط صورة المغادرة لو عايز (أو سيبه فاضي "")
+        image: "https://cdn.discordapp.com/attachments/882077635902079076/1569874231997505536/image_14f7b183.jpg?ex=6af50acf&is=6af3b94f&hm=6b86e55c66636a94832d63d3e36ae257eb6883dcfa88d8733749c593cce0e05f&",
         ping: true
     },
 
-    // ⚡ إعدادات الرتبة التلقائية (الأوتو رول للأعضاء الجدد)
     autorole: {
         roleId: "" 
     }
