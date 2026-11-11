@@ -1,5 +1,5 @@
 import { Events, EmbedBuilder, PermissionFlagsBits, AuditLogEvent } from 'discord.js';
-import { LOG_CONFIG } from '../utils/messageDeleteLog.js'; // <-- تحديث مسار الاستيراد للملف الجديد
+import { LOG_CONFIG } from '../utils/messageDeleteLog.js';
 import { logger } from '../utils/logger.js';
 
 export default {
@@ -19,27 +19,31 @@ export default {
 
         const deleteTime = new Date(); // وقت الحذف الحالي
 
-        // انتظار ثانية للتأكد من تسجيل ديسكورد للـ Audit Log
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        // الانتظار لضمان تسجيل ديسكورد للاسم في الـ Audit Logs
+        await new Promise(resolve => setTimeout(resolve, 2500));
 
         // جلب الـ Audit Logs لمعرفة من حذف الرسالة
         const fetchedLogs = await message.guild.fetchAuditLogs({
-            limit: 1,
+            limit: 5,
             type: AuditLogEvent.MessageDelete,
         }).catch(() => null);
 
-        const deletionLog = fetchedLogs?.entries.first();
-        let executor = "غير معروف (مسحها بنفسه أو انتهت صلاحية اللوق)";
+        // القيمة الافتراضية: صاحب الرسالة هو من حذفها بنفسه
+        let executor = message.author.toString(); 
 
-        if (deletionLog) {
-            const { target, executor: userWhoDeleted } = deletionLog;
-            if (target.id === message.author.id && (Date.now() - deletionLog.createdTimestamp) < 5000) {
-                executor = userWhoDeleted.toString();
-            } else {
-                executor = message.author.toString();
+        if (fetchedLogs && fetchedLogs.entries.size > 0) {
+            // ترتيب السجلات من الأحدث للأقدم والبحث عن العملية الصحيحة
+            const sortedEntries = [...fetchedLogs.entries.values()].sort((a, b) => b.createdTimestamp - a.createdTimestamp);
+            
+            const deletionLog = sortedEntries.find(entry => 
+                entry.target.id === message.author.id && 
+                Math.abs(Date.now() - entry.createdTimestamp) < 8000 // فحص صارم للفارق الزمني (أقل من 8 ثوانٍ)
+            );
+
+            if (deletionLog) {
+                // إذا وجدنا سجل حذف حقيقي قام به إداري آخر، نأخذ اسمه
+                executor = deletionLog.executor.toString();
             }
-        } else {
-            executor = message.author.toString();
         }
 
         // تحويل أوقات الإرسال والحذف لتنسيق ديسكورد الزمني بالثواني
@@ -50,10 +54,16 @@ export default {
             .setColor(0xFF0000)
             .setTitle('في رسالة أتمسحت و دي البيانات بتاعتها:')
             .setThumbnail(message.author.displayAvatarURL({ dynamic: true }))
-            .setDescription(`**اللي مسح الرسالة:** ${executor}\n**اللي بعت الرسالة:** ${message.author.toString()}\n**المكان اللي اتبعتت فيه الرسالة:** ${message.channel.toString()}\n\n**الوقت اللي اتبعتت فيه الرسالة:** (<t:${sendTimestamp}:R>)\n<t:${sendTimestamp}:F>\n**الوقت اللي اتمسحت فيه الرسالة:** (<t:${deleteTimestamp}:R>)\n<t:${deleteTimestamp}:F>\n\n**محتوى الرسالة نفسها:**\n\`\`\`${message.content || "(رسالة فارغة أو ميديا فقط)"}\`\`\``)
+            .setDescription(
+                `**اللي مسح الرسالة:** ${executor}\n` +
+                `**اللي بعت الرسالة:** ${message.author.toString()}\n` +
+                `**المكان اللي اتبعتت فيه الرسالة:** ${message.channel.toString()}\n\n` +
+                `**الوقت اللي اتبعتت فيه الرسالة:** (<t:${sendTimestamp}:R>)\n<t:${sendTimestamp}:F>\n` +
+                `**الوقت اللي اتمسحت فيه الرسالة:** (<t:${deleteTimestamp}:R>)\n<t:${deleteTimestamp}:F>\n\n` +
+                `**محتوى الرسالة نفسها:**\n\`\`\`${message.content || "(رسالة فارغة أو ميديا فقط)"}\`\`\``
+            )
             .setTimestamp();
 
-        // عرض روابط المرفقات أو الصور إذا وجدت
         if (message.attachments.size > 0) {
             const attachmentUrls = message.attachments.map(a => a.url).join('\n');
             embed.addFields({ name: 'المرفقات الممسوحة:', value: attachmentUrls });
