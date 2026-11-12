@@ -176,22 +176,7 @@ export class ModerationService {
 
       await guild.members.ban(user.id, { reason });
 
-      const caseId = await logModerationAction({
-        client: guild.client,
-        guild,
-        event: {
-          action: 'Member Banned',
-          target: `${user.tag} (${user.id})`,
-          executor: `${moderator.user.tag} (${moderator.id})`,
-          reason,
-          metadata: {
-            userId: user.id,
-            moderatorId: moderator.id,
-            permanent: true,
-            deleteDays
-          }
-        }
-      });
+      const caseId = generateCaseId();
 
       logger.info(`User banned: ${user.tag} by ${moderator.user.tag} in ${guild.name}`);
       
@@ -235,20 +220,8 @@ export class ModerationService {
 
       await member.kick(reason);
 
-      const caseId = await logModerationAction({
-        client: guild.client,
-        guild,
-        event: {
-          action: 'Member Kicked',
-          target: `${member.user.tag} (${member.id})`,
-          executor: `${moderator.user.tag} (${moderator.id})`,
-          reason,
-          metadata: {
-            userId: member.id,
-            moderatorId: moderator.id
-          }
-        }
-      });
+      const caseId = generateCaseId();
+
 
       logger.info(`User kicked: ${member.user.tag} by ${moderator.user.tag} in ${guild.name}`);
       
@@ -294,22 +267,8 @@ export class ModerationService {
       await member.timeout(durationMs, reason);
 
       const durationMinutes = Math.floor(durationMs / 60000);
-      const caseId = await logModerationAction({
-        client: guild.client,
-        guild,
-        event: {
-          action: 'Member Timed Out',
-          target: `${member.user.tag} (${member.id})`,
-          executor: `${moderator.user.tag} (${moderator.id})`,
-          reason,
-          duration: `${durationMinutes} minutes`,
-          metadata: {
-            userId: member.id,
-            moderatorId: moderator.id,
-            durationMs
-          }
-        }
-      });
+      const caseId = generateCaseId();
+
 
       logger.info(`User timed out: ${member.user.tag} by ${moderator.user.tag} in ${guild.name}`);
       
@@ -362,20 +321,8 @@ export class ModerationService {
 
       await member.timeout(null, reason);
 
-      await logModerationAction({
-        client: guild.client,
-        guild,
-        event: {
-          action: 'Member Untimeouted',
-          target: `${member.user.tag} (${member.id})`,
-          executor: `${moderator.user.tag} (${moderator.id})`,
-          reason,
-          metadata: {
-            userId: member.id,
-            moderatorId: moderator.id
-          }
-        }
-      });
+      const caseId = generateCaseId();
+
 
       logger.info(`Timeout removed: ${member.user.tag} by ${moderator.user.tag} in ${guild.name}`);
       
@@ -416,20 +363,8 @@ export class ModerationService {
 
       await guild.members.unban(user.id, reason);
 
-      const caseId = await logModerationAction({
-        client: guild.client,
-        guild,
-        event: {
-          action: 'Member Unbanned',
-          target: `${user.tag} (${user.id})`,
-          executor: `${moderator.user.tag} (${moderator.id})`,
-          reason,
-          metadata: {
-            userId: user.id,
-            moderatorId: moderator.id
-          }
-        }
-      });
+      const caseId = generateCaseId();
+
 
       logger.info(`User unbanned: ${user.tag} by ${moderator.user.tag} in ${guild.name}`);
       
