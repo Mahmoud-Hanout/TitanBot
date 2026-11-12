@@ -3,7 +3,7 @@
 import { PermissionFlagsBits } from 'discord.js';
 import { logger } from '../../utils/logger.js';
 import { TitanBotError, ErrorTypes } from '../../utils/errorHandler.js';
-import { logModerationAction } from '../../utils/moderation.js';
+const generateCaseId = () => Math.floor(1000 + Math.random() * 9000);
 
 function getTargetLabel(target) {
   return target.user?.tag ?? target.displayName ?? 'this user';
