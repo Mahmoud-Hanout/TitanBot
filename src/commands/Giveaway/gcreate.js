@@ -10,9 +10,7 @@ import {
     createGiveawayEmbed, 
     createGiveawayButtons 
 } from '../../services/giveawayService.js';
-import { logEvent, EVENT_TYPES } from '../../services/loggingService.js';
 import { InteractionHelper } from '../../utils/interactionHelper.js';
-
 import { botConfig } from '../../config/bot.js';
 
 const GIVEAWAY_MIN_WINNERS = botConfig.giveaways?.minimumWinners ?? 1;
