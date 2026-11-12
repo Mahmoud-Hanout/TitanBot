@@ -1,5 +1,3 @@
-// leveling.js
-
 import { EmbedBuilder } from 'discord.js';
 import { logger } from '../../utils/logger.js';
 import { getGuildConfig, setGuildConfig } from '../config/guildConfig.js';
