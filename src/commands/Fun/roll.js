@@ -16,7 +16,7 @@ export default {
 
     const embed = successEmbed(
       'الرقم:',
-      `${interaction.user} رمى الزهر وطلعله رقم: **${randomNumber}**`
+      `الفحل ${interaction.user} رمى الزهر اللي معاه و طلعله **${randomNumber}**`
     );
 
     await InteractionHelper.safeEditReply(interaction, { embeds: [embed] });
