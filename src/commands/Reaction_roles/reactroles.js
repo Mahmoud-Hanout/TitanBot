@@ -5,7 +5,6 @@ import { logger } from '../../utils/logger.js';
 import { createError, TitanBotError, ErrorTypes, replyUserError } from '../../utils/errorHandler.js';
 import { InteractionHelper } from '../../utils/interactionHelper.js';
 import { createReactionRoleMessage, hasDangerousPermissions, getAllReactionRoleMessages, deleteReactionRoleMessage } from '../../services/reactionRoleService.js';
-import { logEvent, EVENT_TYPES } from '../../services/loggingService.js';
 import {
     getReactionRolePanelStatus,
     formatPanelStatusField,
