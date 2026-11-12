@@ -180,6 +180,7 @@ const logger = createLogger({
     }),
   ],
   exceptionHandlers: [
+    new transports.Console(),
     new transports.DailyRotateFile({
       filename: path.join(__dirname, '../../logs/exceptions-%DATE%.log'),
       maxSize: '20m',
@@ -188,6 +189,7 @@ const logger = createLogger({
     }),
   ],
   rejectionHandlers: [
+    new transports.Console(),
     new transports.DailyRotateFile({
       filename: path.join(__dirname, '../../logs/rejections-%DATE%.log'),
       maxSize: '20m',
