@@ -2,7 +2,6 @@
 
 import { logger } from '../../utils/logger.js';
 import { getLevelingConfig, getXpForLevel, getUserLevelData, saveUserLevelData } from './leveling.js';
-import { formatLogLine } from '../../utils/logging/logEmbeds.js';
 import { Mutex } from '../../utils/mutex.js';
 import { wrapServiceBoundary } from '../../utils/errorHandler.js';
 
@@ -50,27 +49,6 @@ export const addXp = wrapServiceBoundary(async function addXp(client, guild, mem
       if (config.announceLevelUp) {
         await sendLevelUpAnnouncement(guild, member, levelData, config);
       }
-
-      try {
-        await logEvent({
-          client,
-          guildId: guild.id,
-          eventType: EVENT_TYPES.LEVELING_LEVELUP,
-          data: {
-            title: 'Level Up',
-            lines: [
-              formatLogLine('Member', `${member.user.tag} (\`${member.user.id}\`)`),
-              formatLogLine('New Level', levelData.level.toString()),
-              formatLogLine('Levels Gained', (levelData.level - initialLevel).toString()),
-              formatLogLine('Total XP', levelData.totalXp.toString()),
-            ],
-            userId: member.user.id,
-          },
-        });
-      } catch (logError) {
-        logger.debug('Failed to log leveling event:', logError.message);
-      }
-    }
 
     await saveUserLevelData(client, guild.id, member.user.id, levelData);
 
