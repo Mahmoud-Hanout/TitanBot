@@ -274,5 +274,121 @@ class TitanBot extends Client {
           throw new Error(`Invalid loader export from ${handler.path}`);
         }
       } catch (error) {
-        console.error(`HANDLER CRASH (${handler.path}):`, error);
         if (handler.required) {
+          logger.error(`❌ Failed to load required handler ${handler.path}:`, error.message);
+          throw error;
+        } else if (error.code !== 'MODULE_NOT_FOUND') {
+          logger.warn(`⚠️  Failed to load optional handler ${handler.path}:`, error.message);
+        }
+      }
+    }
+  }
+
+  async registerCommands() {
+    try {
+      await registerSlashCommands(this, { clientId: this.config.bot.clientId });
+    } catch (error) {
+      logger.error('Error registering commands:', error);
+    }
+  }
+
+  async shutdown(reason = 'UNKNOWN') {
+    shutdownLog(`Bot is shutting down (${reason})...`);
+    logger.info(`\n${'='.repeat(60)}`);
+    logger.info(`🛑 Graceful Shutdown Initiated (${reason})`);
+    logger.info(`${'='.repeat(60)}`);
+
+    try {
+      
+      logger.info('Stopping cron jobs...');
+      cron.getTasks().forEach(task => task.stop());
+      logger.info('✅ Cron jobs stopped');
+
+      logger.info('Stopping music players...');
+      await shutdownMusic(this);
+      logger.info('✅ Music players stopped');
+
+      if (this.webServer) {
+        logger.info('Closing web server...');
+        await new Promise((resolve) => this.webServer.close(resolve));
+        logger.info('✅ Web server closed');
+      }
+
+      // Close database connection
+      // Close database connection
+      if (this.db && this.db.db) {
+        logger.info('Closing database connection...');
+        try {
+          if (this.db.db.pool) {
+            await this.db.db.pool.end();
+            logger.info('✅ Database connection closed');
+          }
+        } catch (error) {
+          logger.warn('Error closing database pool:', error.message);
+        }
+      }
+
+      logger.info('Destroying Discord client...');
+      if (this.isReady()) {
+        try {
+          this.destroy();
+          logger.info('✅ Discord client destroyed');
+        } catch (error) {
+
+          logger.warn('Discord client destroy warning (non-critical):', error.message);
+        }
+      }
+
+      logger.info('✅ Graceful shutdown complete');
+  shutdownLog('Bot stopped successfully.');
+      process.exit(0);
+    } catch (error) {
+      logger.error('Error during graceful shutdown:', error);
+      process.exit(1);
+    }
+  }
+}
+
+try {
+  const bot = new TitanBot();
+  
+  const setupShutdown = () => {
+    process.on('SIGTERM', () => bot.shutdown('SIGTERM'));
+    process.on('SIGINT', () => bot.shutdown('SIGINT'));
+    
+    process.on('uncaughtException', (error) => {
+      // Process state may be corrupt after an uncaught throw; log and shut down cleanly.
+      handleTaskError('uncaught_exception', error, { fatal: true });
+      bot.shutdown('UNCAUGHT_EXCEPTION');
+    });
+
+    process.on('unhandledRejection', (reason) => {
+      const code = reason?.code;
+      if (code === 10062 || code === 40060 || code === 50027) {
+        logger.warn('Recoverable Discord interaction rejection:', reason?.message || reason);
+        return;
+      }
+      if (reason?.message?.includes('Queue is empty')) {
+        return;
+      }
+
+      // A stray rejection is a bug to fix, not a reason to take the bot down.
+      // Log loudly with full context; the central task handler categorizes it.
+      handleTaskError('unhandled_rejection', reason instanceof Error ? reason : new Error(String(reason)), {
+        errorCode: ErrorCodes.UNHANDLED_REJECTION,
+      });
+    });
+  };
+  
+  setupShutdown();
+  bot.start().catch((error) => {
+    logger.error('Fatal error during bot startup:', error);
+    bot.shutdown('STARTUP_ERROR');
+  });
+} catch (error) {
+  console.error('STARTUP CRASH:', error);
+  logger.error('Fatal error during bot startup:', error);
+  process.exit(1);
+}
+
+export default TitanBot;
