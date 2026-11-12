@@ -23,7 +23,7 @@ const appConfig = {
     clientId: process.env.CLIENT_ID,
     // Retained for tutorial/setup compatibility; not used for command registration.
     guildId: process.env.GUILD_ID,
-
+  },
 
   // PostgreSQL configuration - Primary production database
   postgresql: {
@@ -63,8 +63,6 @@ const appConfig = {
       max: 100,
     },
   },
-
-  shop,
 
   features: {
     ...botConfig.features,
