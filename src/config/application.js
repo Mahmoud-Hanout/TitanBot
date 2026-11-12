@@ -24,11 +24,6 @@ const appConfig = {
     // Retained for tutorial/setup compatibility; not used for command registration.
     guildId: process.env.GUILD_ID,
 
-    shop: {
-      ...botConfig.shop,
-      ...shop,
-    },
-  },
 
   // PostgreSQL configuration - Primary production database
   postgresql: {
