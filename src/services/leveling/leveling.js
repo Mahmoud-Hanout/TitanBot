@@ -343,6 +343,50 @@ export async function removeLevels(client, guildId, userId, levels) {
     }
 
     const userData = await getUserLevelData(client, guildId, userId);
+    const newLevel = Math.max(MIN_LEVEL, userData.level - levels);
+
+    const newXp = 0;
+    const newTotalXp = calculateTotalXp(newLevel, newXp);
+
+    userData.level = newLevel;
+    userData.xp = newXp;
+    userData.totalXp = newTotalXp;
+
+    await saveUserLevelData(client, guildId, userId, userData);
+    
+    logger.info(`Removed ${levels} levels from user ${userId} in guild ${guildId}`);
+    return userData;
+  } catch (error) {
+    logger.error(`Error removing levels for user ${userId}:`, error);
+    if (error instanceof TitanBotError) throw error;
+    throw new TitanBotError(
+      `Failed to remove levels: ${error.message}`,
+      ErrorTypes.DATABASE,
+      'Could not remove levels at this time.'
+    );
+  }
+}
+
+export async function setUserLevel(client, guildId, userId, level) {
+  try {
+    const levelingConfig = await getLevelingConfig(client, guildId);
+    if (!levelingConfig?.enabled) {
+      throw new TitanBotError(
+        'Leveling system is disabled on this server',
+        ErrorTypes.CONFIGURATION,
+        'The leveling system is currently disabled on this server.'
+      );
+    }
+
+    if (!Number.isInteger(level) || level < MIN_LEVEL || level > MAX_LEVEL) {
+      throw new TitanBotError(
+        `Invalid level: ${level}`,
+        ErrorTypes.VALIDATION,
+        `Level must be between ${MIN_LEVEL} and ${MAX_LEVEL}.`
+      );
+    }
+
+    const userData = await getUserLevelData(client, guildId, userId);
     
     const newXp = 0;
     const newTotalXp = calculateTotalXp(level, newXp);
