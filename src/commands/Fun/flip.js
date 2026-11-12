@@ -15,7 +15,7 @@ export default {
 
     const embed = successEmbed(
       "نتيجه القرعة:",
-      `**${result}**`,
+      `الفحل ${interaction.user} رمى جنية و طلعت **{result}**`,
     );
 
     await InteractionHelper.safeReply(interaction, { embeds: [embed] });
