@@ -15,7 +15,6 @@ import {
     createGiveawayEmbed,
     createGiveawayButtons
 } from '../services/giveawayService.js';
-import { logEvent, EVENT_TYPES } from '../services/loggingService.js';
 
 export const giveawayJoinHandler = {
     customId: 'giveaway_join',
