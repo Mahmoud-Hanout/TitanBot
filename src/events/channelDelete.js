@@ -4,8 +4,7 @@ import {
     unregisterTemporaryChannel,
     getTicketData,
     saveTicketData
-} from '../utils/database.js';
-import { getServerCounters, saveServerCounters } from '../services/serverstatsService.js';
+} from '../utils/database.js';    
 import { logger } from '../utils/logger.js';
 
 export default {
