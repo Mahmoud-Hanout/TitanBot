@@ -6,6 +6,7 @@ import { getGuildConfig, setGuildConfig } from '../config/guildConfig.js';
 import { TitanBotError, ErrorTypes } from '../../utils/errorHandler.js';
 import { addXp } from './xpSystem.js';
 import { getUserLevelKey } from '../../utils/database/keys.js';
+import { LEVEL_CONFIG } from '../../utils/levelConfig.js';
 
 const BASE_XP = 100;
 const XP_MULTIPLIER = 1.5;
