@@ -3,8 +3,6 @@ import { errorEmbed, successEmbed } from '../../utils/embeds.js';
 import { logger } from '../../utils/logger.js';
 import { TitanBotError, ErrorTypes } from '../../utils/errorHandler.js';
 import { getGuildGiveaways, deleteGiveaway } from '../../utils/giveaways.js';
-import { logEvent, EVENT_TYPES } from '../../services/loggingService.js';
-
 import { InteractionHelper } from '../../utils/interactionHelper.js';
 export default {
     data: new SlashCommandBuilder()
