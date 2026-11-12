@@ -30,7 +30,6 @@ export const addXp = wrapServiceBoundary(async function addXp(client, guild, mem
 
     let xpNeededForNextLevel = getXpForLevel(levelData.level);
     let didLevelUp = false;
-    const initialLevel = levelData.level;
 
     while (levelData.xp >= xpNeededForNextLevel && levelData.level < 1000) {
       levelData.xp -= xpNeededForNextLevel;
@@ -49,6 +48,7 @@ export const addXp = wrapServiceBoundary(async function addXp(client, guild, mem
       if (config.announceLevelUp) {
         await sendLevelUpAnnouncement(guild, member, levelData, config);
       }
+    }
 
     await saveUserLevelData(client, guild.id, member.user.id, levelData);
 
