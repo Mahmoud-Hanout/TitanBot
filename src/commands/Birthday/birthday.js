@@ -588,7 +588,7 @@ export default {
       if (type === 'countdown' || type === 'both') {
         previewEmbeds.push({
           title: 'فاضــل 10 أيــام',
-          description: `أنهارده بدأ العد التنازلي لعيد ميلاد الفحل ${countdownMentions} \n كل حبايبه يجهزولو من دلوقتي، فاضل 10 أيام على الذكرى السنوية للحظة اللي انولد فيها.`,
+          description: `أنهارده بدأ العد التنازلي لعيد ميلاد الفحل ${interaction.user} \n كل حبايبه يجهزولو من دلوقتي، فاضل 10 أيام على الذكرى السنوية للحظة اللي انولد فيها.`,
           color: 0xffa500,
           thumbnail: { url: interaction.user.displayAvatarURL({ extension: 'png', size: 512 }) },
           image: { url: 'https://cdn.discordapp.com/attachments/882077635902079076/1571820973227909140/image_c55ec6f2.jpg?ex=6afc1fdb&is=6aface5b&hm=0233a33da6b2204255413f329eb216798209d734111f3500548716417f7ddb22&' },
@@ -600,7 +600,7 @@ export default {
       if (type === 'birthday' || type === 'both') {
         previewEmbeds.push({
           title: 'كـــل سنــــة وأنت طـــيب',
-          description: `أنهارده عيد ميلاد الفحل ${mentionList} \n عايزين كلنا نقوله كل سنة و أنت طيب يا فحل و يارب تحقق كل اللي بتتمناه`,
+          description: `أنهارده عيد ميلاد الفحل ${interaction.user} \n عايزين كلنا نقوله كل سنة و أنت طيب يا فحل و يارب تحقق كل اللي بتتمناه`,
           color: 0xff69b4,
           thumbnail: { url: interaction.user.displayAvatarURL({ extension: 'png', size: 512 }) },
           image: { url: 'https://media.discordapp.net/attachments/882077635902079076/1571824534171025508/image_6bf600c7.jpg?ex=6afc232c&is=6afad1ac&hm=498cbe557f277bd2c3aa69f1e770edb8aba35c773512effc94b15b08219ae980&format=webp' },
