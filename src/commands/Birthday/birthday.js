@@ -242,8 +242,8 @@ export async function checkBirthdays(client) {
 
         await channel.send({
           embeds: [{
-            title: '🎉 Happy Birthday! 🎂',
-            description: `A very happy birthday to ${mentionList}! Wishing you an amazing day! 🎈`,
+            title: 'كـــل سنــــة وأنت طـــيب',
+            description: `أنهارده عيد ميلاد الفحل ${mentionList} \n عايزين كلنا نقوله كل سنة و أنت طيب يا فحل و يارب تحقق كل اللي بتتمناه`,
             color: 0xff69b4,
             thumbnail: { url: birthdayMembers[0].user.displayAvatarURL({ extension: 'png', size: 512 }) },
             image: { url: 'https://media.discordapp.net/attachments/882077635902079076/1571824534171025508/image_6bf600c7.jpg?ex=6afc232c&is=6afad1ac&hm=498cbe557f277bd2c3aa69f1e770edb8aba35c773512effc94b15b08219ae980&format=webp' },
