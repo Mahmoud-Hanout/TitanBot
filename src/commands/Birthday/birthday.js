@@ -210,6 +210,8 @@ export async function checkBirthdays(client) {
             title: '🎉 Happy Birthday! 🎂',
             description: `A very happy birthday to ${mentionList}! Wishing you an amazing day! 🎈`,
             color: 0xff69b4,
+            thumbnail: { url: birthdayMembers[0].user.displayAvatarURL({ extension: 'png', size: 512 }) },
+            image: { url: 'ضع_رابط_الصورة_هنا' },
             footer: { text: 'Birthday Bot' },
             timestamp: new Date()
           }]
