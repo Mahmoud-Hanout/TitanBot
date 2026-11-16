@@ -572,7 +572,46 @@ export default {
         return InteractionHelper.safeReply(interaction, { embeds: [embed], flags: MessageFlags.Ephemeral });
       }
     }
+        if (subcommand === 'test') {
+      if (!interaction.member.permissions.has(PermissionsBitField.Flags.ManageGuild)) {
+        const embed = new EmbedBuilder()
+          .setColor(0xFF0000)
+          .setTitle('مش معاك صلاحية')
+          .setDescription('الأمر ده للإدارة بس علشان يجربوا شكل الرسالة.');
+        return InteractionHelper.safeReply(interaction, { embeds: [embed], flags: MessageFlags.Ephemeral });
+      }
 
+      const type = interaction.options.getString('type');
+      const previewEmbeds = [];
+
+      if (type === 'countdown' || type === 'both') {
+        previewEmbeds.push({
+          title: '⏳ بدأ العد التنازلي! ⏰',
+          description: `بدأ العد التنازلي لعيد ميلاد الفحل ${interaction.user}! 🎉\nجهزوا نفسكم، فاضل **10 أيام** بس على الحدث الكبير! 🔥`,
+          color: 0xffa500,
+          thumbnail: { url: interaction.user.displayAvatarURL({ extension: 'png', size: 512 }) },
+          footer: { text: 'Birthday Bot • معاينة تجريبية' },
+          timestamp: new Date()
+        });
+      }
+
+      if (type === 'birthday' || type === 'both') {
+        previewEmbeds.push({
+          title: '🎉 Happy Birthday! 🎂',
+          description: `A very happy birthday to ${interaction.user}! Wishing you an amazing day! 🎈`,
+          color: 0xff69b4,
+          thumbnail: { url: interaction.user.displayAvatarURL({ extension: 'png', size: 512 }) },
+          image: { url: 'ضع_رابط_الصورة_هنا' },
+          footer: { text: 'Birthday Bot • معاينة تجريبية' },
+          timestamp: new Date()
+        });
+      }
+
+      return await InteractionHelper.safeReply(interaction, {
+        content: '👀 **معاينة تجريبية لشكل الرسالة:**',
+        embeds: previewEmbeds
+      });
+    }
     return await replyUserError(interaction, { type: ErrorTypes.UNKNOWN, message: 'Unknown subcommand' });
   }
 };
