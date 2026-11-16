@@ -224,10 +224,11 @@ export async function checkBirthdays(client) {
 
         await channel.send({
           embeds: [{
-            title: '⏳ بدأ العد التنازلي! ⏰',
-            description: `بدأ العد التنازلي لعيد ميلاد الفحل ${countdownMentions}! 🎉\nجهزوا نفسكم، فاضل **10 أيام** بس على الحدث الكبير! 🔥`,
+            title: 'فاضــل 10 أيــام',
+            description: `أنهارده بدأ العد التنازلي لعيد ميلاد الفحل ${countdownMentions} \n كل حبايبه يجهزولو من دلوقتي، فاضل 10 أيام على الذكرى السنوية للحظة اللي انولد فيها.`,
             color: 0xffa500,
             thumbnail: { url: countdownMembers[0].user.displayAvatarURL({ extension: 'png', size: 512 }) },
+            image: { url: 'https://cdn.discordapp.com/attachments/882077635902079076/1571820973227909140/image_c55ec6f2.jpg?ex=6afc1fdb&is=6aface5b&hm=0233a33da6b2204255413f329eb216798209d734111f3500548716417f7ddb22&' },
             footer: { text: 'Birthday Bot' },
             timestamp: new Date()
           }]
