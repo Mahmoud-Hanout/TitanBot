@@ -206,12 +206,11 @@ export async function checkBirthdays(client) {
         const mentionList = birthdayMembers.map(m => m.toString()).join(' و ');
 
         await channel.send({
-          content: `🎉 كل سنة وأنت طيب يا ${mentionList}!`,
           embeds: [{
-            title: '🎂 احتفال عيد ميلاد سعيد! 🎉',
-            description: `النهاردة عيد ميلاد الفحل ${mentionList}!\nكل سنة وأنت طيب وبصحة وسعادة وعقبال سنين كتير جاية وسط حبايبك! 🎈✨`,
+            title: '🎉 Happy Birthday! 🎂',
+            description: `A very happy birthday to ${mentionList}! Wishing you an amazing day! 🎈`,
             color: 0xff69b4,
-            footer: { text: guild.name },
+            footer: { text: 'Birthday Bot' },
             timestamp: new Date()
           }]
         });
