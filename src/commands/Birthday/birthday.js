@@ -266,6 +266,21 @@ export default {
     .setDescription('Birthday system commands')
     .addSubcommand(subcommand =>
       subcommand
+        .setName('test')
+        .setDescription('تجربة شكل رسالة عيد الميلاد أو العد التنازلي قبل ما تتبعت للأعضاء (للإدارة فقط)')
+        .addStringOption(option =>
+          option
+            .setName('type')
+            .setDescription('اختار الرسالة اللي عايز تعملها معاينة')
+            .setRequired(true)
+            .addChoices(
+              { name: '🎂 رسالة يوم عيد الميلاد', value: 'birthday' },
+              { name: '⏳ رسالة العد التنازلي (قبل 10 أيام)', value: 'countdown' },
+              { name: '🔥 الاتنين مع بعض', value: 'both' }
+            )
+        )
+    )
+      subcommand
         .setName('set')
         .setDescription('لتسجيل تاريخ ميلادك في السيرفر')
         .addIntegerOption(option =>
