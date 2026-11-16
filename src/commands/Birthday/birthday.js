@@ -17,16 +17,16 @@ import { InteractionHelper } from '../../utils/interactionHelper.js';
 
 export function validateBirthday(year, month, day) {
   if (typeof year !== 'number' || typeof month !== 'number' || typeof day !== 'number') {
-    return { isValid: false, error: 'Year, Month and day must be numbers' };
+    return { isValid: false, error: '.لازم تدخل أرقام' };
   }
   if (year < 1900 || year > 2024) {
-    return { isValid: false, error: 'Year must be between 1900 and 2024' };
+    return { isValid: false, error: '.لازم السنة تبقى مبين 1900 ل 2024' };
   }
   if (month < 1 || month > 12) {
-    return { isValid: false, error: 'Month must be between 1 and 12' };
+    return { isValid: false, error: '.لازم الشهر يبقى مبين 1 ل 12' };
   }
   if (day < 1 || day > 31) {
-    return { isValid: false, error: 'Day must be between 1 and 31' };
+    return { isValid: false, error: '.لازم اليوم يبقى مبين 1 ل 31' };
   }
 
   const currentYear = new Date().getFullYear();
@@ -225,7 +225,7 @@ export async function checkBirthdays(client) {
         await channel.send({
           embeds: [{
             title: 'فاضــل 10 أيــام',
-            description: `أنهارده بدأ العد التنازلي لعيد ميلاد الفحل ${countdownMentions} \n كل حبايبه يجهزولو من دلوقتي، فاضل 10 أيام على الذكرى السنوية للحظة اللي انولد فيها.`,
+            description: `أنهارده بدأ العد التنازلي لعيد ميلاد الفحل ${countdownMentions}. \n .كل حبايبه يجهزولو من دلوقتي، فاضل 10 أيام على الذكرى السنوية للحظة اللي انولد فيها.`,
             color: 0xffa500,
             thumbnail: { url: countdownMembers[0].user.displayAvatarURL({ extension: 'png', size: 512 }) },
             image: { url: 'https://cdn.discordapp.com/attachments/882077635902079076/1571820973227909140/image_c55ec6f2.jpg?ex=6afc1fdb&is=6aface5b&hm=0233a33da6b2204255413f329eb216798209d734111f3500548716417f7ddb22&' },
@@ -243,7 +243,7 @@ export async function checkBirthdays(client) {
         await channel.send({
           embeds: [{
             title: 'كـــل سنــــة وأنت طـــيب',
-            description: `أنهارده عيد ميلاد الفحل ${mentionList} \n عايزين كلنا نقوله كل سنة و أنت طيب يا فحل و يارب تحقق كل اللي بتتمناه`,
+            description: `أنهارده عيد ميلاد الفحل ${mentionList}. \n .عايزين كلنا نقوله كل سنة و أنت بخير و طيب يا فحل و يارب تحقق كل اللي نفسك فيه`,
             color: 0xff69b4,
             thumbnail: { url: birthdayMembers[0].user.displayAvatarURL({ extension: 'png', size: 512 }) },
             image: { url: 'https://media.discordapp.net/attachments/882077635902079076/1571824534171025508/image_6bf600c7.jpg?ex=6afc232c&is=6afad1ac&hm=498cbe557f277bd2c3aa69f1e770edb8aba35c773512effc94b15b08219ae980&format=webp' },
@@ -268,27 +268,27 @@ export default {
     .addSubcommand(subcommand =>
       subcommand
         .setName('test')
-        .setDescription('تجربة شكل رسالة عيد الميلاد أو العد التنازلي قبل ما تتبعت للأعضاء (للإدارة فقط)')
+        .setDescription('.لتجربة شكل رسالة الأحتفال بعيد ميلاد  الشخص أو العد التنازلي قبل ما تتبعت في السيرفر')
         .addStringOption(option =>
           option
             .setName('type')
-            .setDescription('اختار الرسالة اللي عايز تعملها معاينة')
+            .setDescription('.اختار الرسالة اللي عايز تعملها معاينة')
             .setRequired(true)
             .addChoices(
-              { name: '🎂 رسالة يوم عيد الميلاد', value: 'birthday' },
-              { name: '⏳ رسالة العد التنازلي (قبل 10 أيام)', value: 'countdown' },
-              { name: '🔥 الاتنين مع بعض', value: 'both' }
+              { name: '.رسالة يوم عيد الميلاد', value: 'birthday' },
+              { name: '.رسالة العد التنازلي (قبل 10 أيام)', value: 'countdown' },
+              { name: '.الاتنين مع بعض', value: 'both' }
             )
         )
     )
     .addSubcommand(subcommand =>
       subcommand
         .setName('set')
-        .setDescription('لتسجيل تاريخ ميلادك في السيرفر')
+        .setDescription('.لتسجيل تاريخ ميلادك في السيرفر')
         .addIntegerOption(option =>
           option
             .setName('year')
-            .setDescription('أكتب سنة ميلادك: ما بين سنة 1900 و سنة 2024')
+            .setDescription('.أكتب سنة ميلادك: ما بين سنة 1900 و سنة 2024')
             .setRequired(true)
             .setMinValue(1900)
             .setMaxValue(2024)
@@ -296,7 +296,7 @@ export default {
         .addIntegerOption(option =>
           option
             .setName('month')
-            .setDescription('أكتب شهر ميلادك: ما بين شهر 1 و شهر 12')
+            .setDescription('.أكتب شهر ميلادك: ما بين شهر 1 و شهر 12')
             .setRequired(true)
             .setMinValue(1)
             .setMaxValue(12)
@@ -304,7 +304,7 @@ export default {
         .addIntegerOption(option =>
           option
             .setName('day')
-            .setDescription('أكتب يوم ميلادك: ما بين يوم 1 و يوم 31')
+            .setDescription('.أكتب يوم ميلادك: ما بين يوم 1 و يوم 31')
             .setRequired(true)
             .setMinValue(1)
             .setMaxValue(31)
@@ -313,43 +313,43 @@ export default {
     .addSubcommand(subcommand =>
       subcommand
         .setName('info')
-        .setDescription('علشان تعرف تاريخ ميلادك الشخصي المتسجل في السيرفر او تاريخ ميلاد شخص تاني.')
+        .setDescription('.علشان تعرف تاريخ ميلادك الشخصي المتسجل في السيرفر او تاريخ ميلاد شخص تاني')
         .addUserOption(option =>
           option
             .setName('user')
-            .setDescription('اختار الشخص اللي عايز تعرف تاريخ ميلاده المتسجل في السيرفر.')
+            .setDescription('.اختار الشخص اللي عايز تعرف تاريخ ميلاده المتسجل في السيرفر')
             .setRequired(false)
         )
     )
     .addSubcommand(subcommand =>
       subcommand
         .setName('list')
-        .setDescription('علشان تشوف قايمة فيها كل تواريخ الميلاد المسجله في السيرفر مع أسماء أصحابها.')
+        .setDescription('.علشان تشوف قايمة فيها كل تواريخ الميلاد المسجله في السيرفر مع أسماء أصحابها')
     )
     .addSubcommand(subcommand =>
       subcommand
         .setName('remove')
-        .setDescription('علشان تمسح تاريخ ميلادك الشخصي المتسجل في السيرفر او تاريخ ميلاد شخص تاني.')
+        .setDescription('.علشان تمسح تاريخ ميلادك الشخصي المتسجل في السيرفر او تاريخ ميلاد شخص تاني')
         .addUserOption(option =>
           option
             .setName('user')
-            .setDescription('اختار الشخص اللي عايز تمسح تاريخ ميلاده المسجل في السيرفر.')
+            .setDescription('.اختار الشخص اللي عايز تمسح تاريخ ميلاده المسجل في السيرفر')
             .setRequired(false)
         )
     )
     .addSubcommand(subcommand =>
       subcommand
         .setName('next')
-        .setDescription('علشان تعرف ايه أعياد الميلاد اللي عليهم الدور.')
+        .setDescription('.علشان تعرف ايه أعياد الميلاد اللي عليهم الدور')
     )
     .addSubcommand(subcommand =>
       subcommand
         .setName('setchannel')
-        .setDescription('علشان تقفل أو تشغل احتفالات أعياد الميلاد في السيرفر (لازم تكون مسؤل في السيرفر).')
+        .setDescription('.علشان تقفل أو تشغل احتفالات أعياد الميلاد في السيرفر (لازم تكون مسؤل في السيرفر)')
         .addChannelOption(option =>
           option
             .setName('channel')
-            .setDescription('أختار المكان اللي هيتم فيه كتابة بوست احتفال الأعياد الميلادية (سيبها فاضية لو عايز تقفلها).')
+            .setDescription('.أختار المكان اللي هيتم فيه كتابة بوست احتفال الأعياد الميلادية (سيبها فاضية لو عايز تقفلها)')
             .addChannelTypes(ChannelType.GuildText)
             .setRequired(false)
         )
@@ -588,7 +588,7 @@ export default {
       if (type === 'countdown' || type === 'both') {
         previewEmbeds.push({
           title: 'فاضــل 10 أيــام',
-          description: `أنهارده بدأ العد التنازلي لعيد ميلاد الفحل ${interaction.user} \n كل حبايبه يجهزولو من دلوقتي، فاضل 10 أيام على الذكرى السنوية للحظة اللي انولد فيها.`,
+          description: `أنهارده بدأ العد التنازلي لعيد ميلاد الفحل ${interaction.user}. \n .كل حبايبه يجهزولو من دلوقتي، فاضل 10 أيام على الذكرى السنوية للحظة اللي انولد فيها`,
           color: 0xffa500,
           thumbnail: { url: interaction.user.displayAvatarURL({ extension: 'png', size: 512 }) },
           image: { url: 'https://cdn.discordapp.com/attachments/882077635902079076/1571820973227909140/image_c55ec6f2.jpg?ex=6afc1fdb&is=6aface5b&hm=0233a33da6b2204255413f329eb216798209d734111f3500548716417f7ddb22&' },
@@ -600,7 +600,7 @@ export default {
       if (type === 'birthday' || type === 'both') {
         previewEmbeds.push({
           title: 'كـــل سنــــة وأنت طـــيب',
-          description: `أنهارده عيد ميلاد الفحل ${interaction.user} \n عايزين كلنا نقوله كل سنة و أنت طيب يا فحل و يارب تحقق كل اللي بتتمناه`,
+          description: `أنهارده عيد ميلاد الفحل ${interaction.user}. \n .عايزين كلنا نقوله كل سنة و أنت طيب يا فحل و يارب تحقق كل اللي بتتمناه`,
           color: 0xff69b4,
           thumbnail: { url: interaction.user.displayAvatarURL({ extension: 'png', size: 512 }) },
           image: { url: 'https://media.discordapp.net/attachments/882077635902079076/1571824534171025508/image_6bf600c7.jpg?ex=6afc232c&is=6afad1ac&hm=498cbe557f277bd2c3aa69f1e770edb8aba35c773512effc94b15b08219ae980&format=webp' },
@@ -610,7 +610,7 @@ export default {
       }
 
       return await InteractionHelper.safeReply(interaction, {
-        content: '👀 **معاينة تجريبية لشكل الرسالة:**',
+        content: '**معاينة تجريبية لشكل الرسالة:**',
         embeds: previewEmbeds
       });
     }
