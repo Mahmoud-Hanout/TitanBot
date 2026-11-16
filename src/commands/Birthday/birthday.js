@@ -280,6 +280,7 @@ export default {
             )
         )
     )
+    .addSubcommand(subcommand =>
       subcommand
         .setName('set')
         .setDescription('لتسجيل تاريخ ميلادك في السيرفر')
