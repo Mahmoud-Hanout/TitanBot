@@ -142,6 +142,9 @@ export async function getUpcomingBirthdays(client, guildId, limit = 5) {
 // ==========================================
 
 export async function checkBirthdays(client) {
+  const BIRTHDAY_CHANNEL_ID = "1568707434464415794";
+  const BIRTHDAY_ROLE_ID = "1571810735267254274";
+
   const today = new Date();
   const currentMonth = today.getUTCMonth() + 1;
   const currentDay = today.getUTCDate();
@@ -149,7 +152,9 @@ export async function checkBirthdays(client) {
   for (const [guildId, guild] of client.guilds.cache) {
     try {
       const config = await getGuildConfig(client, guildId);
-      const { birthdayChannelId, birthdayRoleId } = config;
+      const birthdayChannelId = BIRTHDAY_CHANNEL_ID || config.birthdayChannelId;
+      const birthdayRoleId = BIRTHDAY_ROLE_ID || config.birthdayRoleId;
+
       if (!birthdayChannelId) continue;
 
       const channel = await guild.channels.fetch(birthdayChannelId).catch(() => null);
@@ -198,14 +203,15 @@ export async function checkBirthdays(client) {
 
       if (birthdayMembers.length > 0) {
         await client.db.set(trackingKey, updatedTrackingData);
-        const mentionList = birthdayMembers.map(m => m.toString()).join(', ');
+        const mentionList = birthdayMembers.map(m => m.toString()).join(' و ');
 
         await channel.send({
+          content: `🎉 كل سنة وأنت طيب يا ${mentionList}!`,
           embeds: [{
-            title: '🎉 Happy Birthday! 🎂',
-            description: `A very happy birthday to ${mentionList}! Wishing you an amazing day! 🎈`,
+            title: '🎂 احتفال عيد ميلاد سعيد! 🎉',
+            description: `النهاردة عيد ميلاد الفحل ${mentionList}!\nكل سنة وأنت طيب وبصحة وسعادة وعقبال سنين كتير جاية وسط حبايبك! 🎈✨`,
             color: 0xff69b4,
-            footer: { text: 'Birthday Bot' },
+            footer: { text: guild.name },
             timestamp: new Date()
           }]
         });
