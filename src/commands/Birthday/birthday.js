@@ -149,6 +149,12 @@ export async function checkBirthdays(client) {
   const currentMonth = today.getUTCMonth() + 1;
   const currentDay = today.getUTCDate();
 
+  // حساب تاريخ بعد 10 أيام للعد التنازلي
+  const tenDaysFromNow = new Date(today);
+  tenDaysFromNow.setUTCDate(today.getUTCDate() + 10);
+  const countdownMonth = tenDaysFromNow.getUTCMonth() + 1;
+  const countdownDay = tenDaysFromNow.getUTCDate();
+
   for (const [guildId, guild] of client.guilds.cache) {
     try {
       const config = await getGuildConfig(client, guildId);
@@ -184,7 +190,10 @@ export async function checkBirthdays(client) {
 
       const birthdays = (await getGuildBirthdays(client, guildId)) || {};
       const birthdayMembers = [];
+      const countdownMembers = [];
+
       for (const [userId, userData] of Object.entries(birthdays)) {
+        // 1. فحص أعياد ميلاد اليوم
         if (userData.month === currentMonth && userData.day === currentDay) {
           const member = await guild.members.fetch(userId).catch(() => null);
           if (member) {
@@ -199,8 +208,33 @@ export async function checkBirthdays(client) {
             }
           }
         }
+
+        // 2. فحص أعياد الميلاد اللي فاضل عليها 10 أيام
+        if (userData.month === countdownMonth && userData.day === countdownDay) {
+          const member = await guild.members.fetch(userId).catch(() => null);
+          if (member) {
+            countdownMembers.push(member);
+          }
+        }
       }
 
+      // إرسال رسالة العد التنازلي (قبل عيد الميلاد بـ 10 أيام)
+      if (countdownMembers.length > 0) {
+        const countdownMentions = countdownMembers.map(m => m.toString()).join(' و ');
+
+        await channel.send({
+          embeds: [{
+            title: '⏳ بدأ العد التنازلي! ⏰',
+            description: `بدأ العد التنازلي لعيد ميلاد الفحل ${countdownMentions}! 🎉\nجهزوا نفسكم، فاضل **10 أيام** بس على الحدث الكبير! 🔥`,
+            color: 0xffa500,
+            thumbnail: { url: countdownMembers[0].user.displayAvatarURL({ extension: 'png', size: 512 }) },
+            footer: { text: 'Birthday Bot' },
+            timestamp: new Date()
+          }]
+        });
+      }
+
+      // إرسال رسالة التهنئة الأساسية (يوم عيد الميلاد)
       if (birthdayMembers.length > 0) {
         await client.db.set(trackingKey, updatedTrackingData);
         const mentionList = birthdayMembers.map(m => m.toString()).join(' و ');
