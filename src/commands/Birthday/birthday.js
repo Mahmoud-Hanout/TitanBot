@@ -246,7 +246,7 @@ export async function checkBirthdays(client) {
             description: `A very happy birthday to ${mentionList}! Wishing you an amazing day! 🎈`,
             color: 0xff69b4,
             thumbnail: { url: birthdayMembers[0].user.displayAvatarURL({ extension: 'png', size: 512 }) },
-            image: { url: 'ضع_رابط_الصورة_هنا' },
+            image: { url: 'https://media.discordapp.net/attachments/882077635902079076/1571824534171025508/image_6bf600c7.jpg?ex=6afc232c&is=6afad1ac&hm=498cbe557f277bd2c3aa69f1e770edb8aba35c773512effc94b15b08219ae980&format=webp' },
             footer: { text: 'Birthday Bot' },
             timestamp: new Date()
           }]
