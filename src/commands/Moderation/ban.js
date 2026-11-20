@@ -1,67 +1,135 @@
-import { SlashCommandBuilder, PermissionFlagsBits } from 'discord.js';
-import { successEmbed } from '../../utils/embeds.js';
-import { InteractionHelper } from '../../utils/interactionHelper.js';
-import { ModerationService } from '../../services/moderation/moderationService.js';
-import { TitanBotError, ErrorTypes } from '../../utils/errorHandler.js';
+import { SlashCommandBuilder, PermissionFlagsBits, EmbedBuilder, MessageFlags } from 'discord.js';
 
 export default {
-    data: new SlashCommandBuilder()
-        .setName("ban")
-        .setDescription("Ban a user from the server")
-        .addUserOption((option) =>
-            option
-                .setName("target")
-                .setDescription("The user to ban")
-                .setRequired(true),
-        )
-        .addStringOption((option) =>
-            option.setName("reason").setDescription("Reason for the ban"),
-        )
-        .setDefaultMemberPermissions(PermissionFlagsBits.BanMembers),
-    category: "moderation",
+  data: new SlashCommandBuilder()
+    .setName('ban')
+    .setDescription('حظر عضو من السيرفر نهائياً')
+    .addUserOption((option) =>
+      option
+        .setName('target')
+        .setDescription('العضو المراد حظره')
+        .setRequired(true)
+    )
+    .addStringOption((option) =>
+      option
+        .setName('reason')
+        .setDescription('سبب الحظر')
+        .setRequired(false)
+    )
+    .addIntegerOption((option) =>
+      option
+        .setName('delete_days')
+        .setDescription('حذف رسائل العضو خلال آخر كام يوم (من 0 إلى 7 أيام)')
+        .setMinValue(0)
+        .setMaxValue(7)
+        .setRequired(false)
+    )
+    .setDefaultMemberPermissions(PermissionFlagsBits.BanMembers)
+    .setDMPermission(false),
 
-    async execute(interaction, config, client) {
-        const user = interaction.options.getUser("target");
-        const reason = interaction.options.getString("reason") || "No reason provided";
+  category: 'moderation',
 
-        if (!user) {
-            throw new TitanBotError(
-                'Missing target user',
-                ErrorTypes.USER_INPUT,
-                'You must specify a user to ban.',
-                { subtype: 'invalid_user' },
-            );
-        }
+  async execute(interaction, config, client) {
+    await interaction.deferReply();
 
-        if (user.id === interaction.user.id) {
-            throw new TitanBotError(
-                'Cannot ban self',
-                ErrorTypes.VALIDATION,
-                'You cannot ban yourself.',
-            );
-        }
-        if (user.id === client.user.id) {
-            throw new TitanBotError(
-                'Cannot ban bot',
-                ErrorTypes.VALIDATION,
-                'You cannot ban the bot.',
-            );
-        }
+    const targetUser = interaction.options.getUser('target');
+    const reason = interaction.options.getString('reason') || 'لم يتم تحديد سبب';
+    const deleteDays = interaction.options.getInteger('delete_days') || 0;
 
-        const result = await ModerationService.banUser({
-            guild: interaction.guild,
-            user,
-            moderator: interaction.member,
-            reason,
+    // 1. فحوصات الأمان الأساسية
+    if (!targetUser) {
+      return interaction.editReply({
+        embeds: [new EmbedBuilder().setColor(0xff0000).setDescription('❌ يجب تحديد عضو صحيح.')]
+      });
+    }
+
+    if (targetUser.id === interaction.user.id) {
+      return interaction.editReply({
+        embeds: [new EmbedBuilder().setColor(0xff0000).setDescription('❌ لا يمكنك حظر نفسك.')]
+      });
+    }
+
+    if (targetUser.id === client.user.id) {
+      return interaction.editReply({
+        embeds: [new EmbedBuilder().setColor(0xff0000).setDescription('❌ لا يمكنك حظري أنا.')]
+      });
+    }
+
+    if (targetUser.id === interaction.guild.ownerId) {
+      return interaction.editReply({
+        embeds: [new EmbedBuilder().setColor(0xff0000).setDescription('❌ لا يمكن حظر مالك السيرفر.')]
+      });
+    }
+
+    // 2. التأكد من صلاحية البوت في السيرفر
+    const botMember = interaction.guild.members.me;
+    if (!botMember.permissions.has(PermissionFlagsBits.BanMembers)) {
+      return interaction.editReply({
+        embeds: [new EmbedBuilder().setColor(0xff0000).setDescription('❌ البوت لا يملك صلاحية **Ban Members**.')]
+      });
+    }
+
+    // 3. فحص ترتيب الرتب (Hierarchy) إذا كان العضو داخل السيرفر
+    const targetMember = await interaction.guild.members.fetch(targetUser.id).catch(() => null);
+
+    if (targetMember) {
+      // فحص رتبة البوت مقارنة بالعضو
+      if (botMember.roles.highest.position <= targetMember.roles.highest.position) {
+        return interaction.editReply({
+          embeds: [
+            new EmbedBuilder()
+              .setColor(0xff0000)
+              .setDescription(`❌ لا أستطيع حظر **${targetUser.tag}** لأن رتبته (**${targetMember.roles.highest.name}**) أعلى من رتبتي أو مساوية لها.`)
+          ]
         });
+      }
 
-        await InteractionHelper.universalReply(interaction, {
-            embeds: [
-                successEmbed(
-                    `🚫 **Banned** ${user.tag}`,
-                    `**Reason:** ${reason}\n**Case ID:** #${result.caseId}`,
-                ),
-            ],
+      // فحص رتبة المشرف مقارنة بالعضو (إلا لو كان المشرف هو أونر السيرفر)
+      if (
+        interaction.guild.ownerId !== interaction.user.id &&
+        interaction.member.roles.highest.position <= targetMember.roles.highest.position
+      ) {
+        return interaction.editReply({
+          embeds: [
+            new EmbedBuilder()
+              .setColor(0xff0000)
+              .setDescription(`❌ لا يمكنك حظر **${targetUser.tag}** لأن رتبته (**${targetMember.roles.highest.name}**) أعلى من رتبتك أو مساوية لها.`)
+          ]
         });
-    },
+      }
+    }
+
+    // 4. تنفيذ الحظر
+    try {
+      const caseId = Math.floor(1000 + Math.random() * 9000);
+
+      await interaction.guild.members.ban(targetUser.id, {
+        deleteMessageSeconds: deleteDays * 86400,
+        reason: `${reason} | بواسطة: ${interaction.user.tag}`
+      });
+
+      const successEmbed = new EmbedBuilder()
+        .setColor(0x2ecc71)
+        .setTitle('🚫 تم حظر العضو بنجاح')
+        .addFields(
+          { name: 'العضو', value: `${targetUser.tag} (\`${targetUser.id}\`)`, inline: true },
+          { name: 'بواسطة', value: `${interaction.user.tag}`, inline: true },
+          { name: 'رقم القضية', value: `#${caseId}`, inline: true },
+          { name: 'السبب', value: reason, inline: false }
+        )
+        .setThumbnail(targetUser.displayAvatarURL({ extension: 'png', size: 256 }))
+        .setTimestamp();
+
+      return interaction.editReply({ embeds: [successEmbed] });
+    } catch (error) {
+      console.error('Ban Error:', error);
+      return interaction.editReply({
+        embeds: [
+          new EmbedBuilder()
+            .setColor(0xff0000)
+            .setDescription('❌ حدث خطأ أثناء محاولة حظر العضو. تأكد من صلاحيات البوت.')
+        ]
+      });
+    }
+  }
 };
