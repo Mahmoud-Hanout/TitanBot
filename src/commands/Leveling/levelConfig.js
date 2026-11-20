@@ -56,13 +56,15 @@ export async function addXp(client, guild, member, xpToAdd) {
   let xpNeeded = getXpForLevel(levelData.level || 0);
   let didLevelUp = false;
 
+    let awardedRole = null;
+
   while (levelData.xp >= xpNeeded && levelData.level < 1000) {
     levelData.xp -= xpNeeded;
     levelData.level += 1;
     didLevelUp = true;
     xpNeeded = getXpForLevel(levelData.level);
 
-        const roleId = LEVEL_CONFIG.roleRewards?.[levelData.level];
+    const roleId = LEVEL_CONFIG.roleRewards?.[levelData.level];
     if (roleId) {
       // إزالة الرتب القديمة من قائمة الجوائز إذا كان الخيار مفعلاً
       if (LEVEL_CONFIG.removePreviousRoles) {
@@ -75,15 +77,11 @@ export async function addXp(client, guild, member, xpToAdd) {
       }
 
       const role = guild.roles.cache.get(roleId);
-      if (role && !member.roles.cache.has(roleId)) {
-        await member.roles.add(role, `Level ${levelData.level} reward`).catch(() => null);
-      }
-    }
-
-    if (roleId) {
-      const role = guild.roles.cache.get(roleId);
-      if (role && !member.roles.cache.has(roleId)) {
-        await member.roles.add(role, `Level ${levelData.level} reward`).catch(() => null);
+      if (role) {
+        awardedRole = role;
+        if (!member.roles.cache.has(roleId)) {
+          await member.roles.add(role, `Level ${levelData.level} reward`).catch(() => null);
+        }
       }
     }
   }
@@ -94,9 +92,15 @@ export async function addXp(client, guild, member, xpToAdd) {
       : guild.systemChannel;
 
     if (channel && channel.isTextBased()) {
-      const msg = LEVEL_CONFIG.levelUpMessage
+      // لو أخد رتبة مكافأة يبعت الرسالة الخاصة بالرتبة، غير كده يبعت رسالة الترقية العادية
+      const template = awardedRole && LEVEL_CONFIG.roleRewardMessage
+        ? LEVEL_CONFIG.roleRewardMessage
+        : LEVEL_CONFIG.levelUpMessage;
+
+      const msg = template
         .replace(/{user}/g, member.toString())
         .replace(/{level}/g, levelData.level)
+        .replace(/{role}/g, awardedRole ? awardedRole.name : '')
         .replace(/{xp}/g, levelData.xp)
         .replace(/{xpNeeded}/g, getXpForLevel(levelData.level + 1));
 
@@ -105,5 +109,3 @@ export async function addXp(client, guild, member, xpToAdd) {
   }
 
   await client.db.set(key, levelData);
-  return { ...levelData, leveledUp: didLevelUp };
-}
