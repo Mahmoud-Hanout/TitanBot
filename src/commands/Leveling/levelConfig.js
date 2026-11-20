@@ -4,7 +4,7 @@ export const LEVEL_CONFIG = {
   xpPerMessage: { min: 15, max: 25 },
   xpCooldown: 20, // بالثواني
   levelUpMessage: '🎉 مبروك يا {user}! وصلت لليفل **{level}**!',
-  levelUpChannel: 'ضع_هنا_آيدي_روم_الترقيات_أو_اتركها_فارغة',
+  levelUpChannel: '1568700000148394106',
   ignoredChannels: [],
   ignoredRoles: [],
   blacklistedUsers: [],
