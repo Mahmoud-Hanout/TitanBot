@@ -185,66 +185,33 @@ async function handleLeveling(message, client) {
   try {
     const rateLimitKey = `xp-event:${message.guild.id}:${message.author.id}`;
     const canProcess = await checkRateLimit(rateLimitKey, MESSAGE_XP_RATE_LIMIT_ATTEMPTS, MESSAGE_XP_RATE_LIMIT_WINDOW_MS);
-    if (!canProcess) {
+    if (!canProcess || !LEVEL_CONFIG.enabled) return;
+
+    if (LEVEL_CONFIG.ignoredChannels?.includes(message.channel.id)) return;
+    if (LEVEL_CONFIG.blacklistedUsers?.includes(message.author.id)) return;
+    if (!message.content || message.content.trim().length === 0) return;
+
+    if (LEVEL_CONFIG.ignoredRoles?.length > 0 && message.member?.roles.cache.some(r => LEVEL_CONFIG.ignoredRoles.includes(r.id))) {
       return;
     }
 
-    const levelingConfig = await getLevelingConfig(client, message.guild.id);
-    
-    if (!levelingConfig?.enabled) {
-      return;
-    }
+    const key = `${message.guild.id}:leveling:users:${message.author.id}`;
+    const userData = (await client.db.get(key)) || { lastMessage: 0 };
 
-    if (levelingConfig.ignoredChannels?.includes(message.channel.id)) {
-      return;
-    }
+    const cooldownTime = LEVEL_CONFIG.xpCooldown || 1;
+    if (Date.now() - (userData.lastMessage || 0) < cooldownTime * 1000) return;
 
-    if (levelingConfig.ignoredRoles?.length > 0) {
-      const member = await message.guild.members.fetch(message.author.id).catch(() => {
-        return null;
-      });
-      if (member && member.roles.cache.some(role => levelingConfig.ignoredRoles.includes(role.id))) {
-        return;
-      }
-    }
+    const minXP = Math.max(1, LEVEL_CONFIG.xpPerMessage?.min || 15);
+    const maxXP = Math.max(minXP, LEVEL_CONFIG.xpPerMessage?.max || 25);
+    let finalXP = Math.floor(Math.random() * (maxXP - minXP + 1)) + minXP;
 
-    if (levelingConfig.blacklistedUsers?.includes(message.author.id)) {
-      return;
-    }
-
-    if (!message.content || message.content.trim().length === 0) {
-      return;
-    }
-
-    const userData = await getUserLevelData(client, message.guild.id, message.author.id);
-
-    const cooldownTime = levelingConfig.xpCooldown || 60;
-    const now = Date.now();
-    const timeSinceLastMessage = now - (userData.lastMessage || 0);
-
-    if (timeSinceLastMessage < cooldownTime * 1000) {
-      return;
-    }
-
-    const minXP = levelingConfig.xpRange?.min || levelingConfig.xpPerMessage?.min || 15;
-    const maxXP = levelingConfig.xpRange?.max || levelingConfig.xpPerMessage?.max || 25;
-
-    const safeMinXP = Math.max(1, minXP);
-    const safeMaxXP = Math.max(safeMinXP, maxXP);
-
-    const xpToGive = Math.floor(Math.random() * (safeMaxXP - safeMinXP + 1)) + safeMinXP;
-
-    let finalXP = xpToGive;
-    if (levelingConfig.xpMultiplier && levelingConfig.xpMultiplier > 1) {
-      finalXP = Math.floor(finalXP * levelingConfig.xpMultiplier);
+    if (LEVEL_CONFIG.xpMultiplier > 1) {
+      finalXP = Math.floor(finalXP * LEVEL_CONFIG.xpMultiplier);
     }
 
     const result = await addXp(client, message.guild, message.member, finalXP);
-
     if (result?.leveledUp) {
-      logger.info(
-        `${message.author.tag} leveled up to level ${result.level} in ${message.guild.name}`
-      );
+      logger.info(`${message.author.tag} leveled up to level ${result.level} in ${message.guild.name}`);
     }
   } catch (error) {
     logger.error('Error handling leveling for message:', error);
