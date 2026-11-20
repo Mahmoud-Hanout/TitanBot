@@ -30,6 +30,7 @@ export const LEVEL_CONFIG = {
     "1000": "1570277554672377876",
     "2000": "1570278009301246083",
   },
+  removePreviousRoles: true,
   announceLevelUp: true,
   xpMultiplier: 1,
   voiceXp: {
@@ -60,7 +61,24 @@ export async function addXp(client, guild, member, xpToAdd) {
     didLevelUp = true;
     xpNeeded = getXpForLevel(levelData.level);
 
-    const roleId = LEVEL_CONFIG.roleRewards?.[levelData.level];
+        const roleId = LEVEL_CONFIG.roleRewards?.[levelData.level];
+    if (roleId) {
+      // إزالة الرتب القديمة من قائمة الجوائز إذا كان الخيار مفعلاً
+      if (LEVEL_CONFIG.removePreviousRoles) {
+        const allRewardRoles = Object.values(LEVEL_CONFIG.roleRewards).filter((id) => id !== roleId);
+        for (const oldRoleId of allRewardRoles) {
+          if (member.roles.cache.has(oldRoleId)) {
+            await member.roles.remove(oldRoleId, `Replaced by Level ${levelData.level} reward`).catch(() => null);
+          }
+        }
+      }
+
+      const role = guild.roles.cache.get(roleId);
+      if (role && !member.roles.cache.has(roleId)) {
+        await member.roles.add(role, `Level ${levelData.level} reward`).catch(() => null);
+      }
+    }
+
     if (roleId) {
       const role = guild.roles.cache.get(roleId);
       if (role && !member.roles.cache.has(roleId)) {
