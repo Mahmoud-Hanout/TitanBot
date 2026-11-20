@@ -10,6 +10,8 @@ export const LEVEL_CONFIG = {
   blacklistedUsers: [],
   roleRewards: {
     // "5": "آيدي_الرتبة"
+    10: 1567416738021253160,
+    20: 1567416737555685536,
   },
   announceLevelUp: true,
   xpMultiplier: 1,
