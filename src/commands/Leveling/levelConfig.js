@@ -4,6 +4,7 @@ export const LEVEL_CONFIG = {
   xpPerMessage: { min: 100, max: 200 },
   xpCooldown: 60,
   levelUpMessage: '🎉 مبروك يا {user}! وصلت لليفل **{level}**!',
+  roleRewardMessage: '🏆 عاش يا {user}! وصلت لليفل **{level}** واستلمت رتبة',
   levelUpChannel: '1568700000148394106',
   ignoredChannels: [],
   ignoredRoles: [],
