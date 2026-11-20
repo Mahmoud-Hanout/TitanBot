@@ -3,8 +3,8 @@ import { logger, startupLog } from "../utils/logger.js";
 import config from "../config/application.js";
 import { reconcileReactionRoleMessages } from "../services/reactionRoleService.js";
 import { reconcileTicketPanels, reconcileVerificationPanels, reconcileReactionRolePanelHealth } from "../services/panelHealthService.js";
-import { reconcileLevelRoles } from "../services/leveling/levelRoleSyncService.js";
 import { initRiffyAfterReady } from "../services/music/riffySetup.js";
+import { LEVEL_CONFIG, addXp } from '../commands/Leveling/levelConfig.js';
 
 export default {
   name: Events.ClientReady,
@@ -42,10 +42,28 @@ export default {
         `Reaction role panel health: scanned ${reactionRolePanelSummary.scannedPanels} panels, healthy ${reactionRolePanelSummary.healthyPanels}, deleted ${reactionRolePanelSummary.deletedPanels}, missing channel ${reactionRolePanelSummary.missingChannels}, recovered ${reactionRolePanelSummary.recoveredIds}, errors ${reactionRolePanelSummary.errors}`
       );
 
-      const levelRoleSummary = await reconcileLevelRoles(client);
-      startupLog(
-        `Level role sync: scanned ${levelRoleSummary.scannedGuilds} guilds, pruned ${levelRoleSummary.prunedRewardEntries} stale rewards, re-awarded ${levelRoleSummary.rolesReAwarded} roles, errors ${levelRoleSummary.errors}`
-      );
+      // 🎙️ نظام منح نقاط الخبرة التلقائي في الرومات الصوتية
+      if (LEVEL_CONFIG.enabled && LEVEL_CONFIG.voiceXp?.enabled) {
+        const intervalMs = (LEVEL_CONFIG.voiceXp.intervalMinutes || 5) * 60 * 1000;
+        const xpToGive = LEVEL_CONFIG.voiceXp.xpAmount || 200;
+
+        setInterval(async () => {
+          for (const guild of client.guilds.cache.values()) {
+            const voiceChannels = guild.channels.cache.filter(
+              (ch) => ch.isVoiceBased() && ch.id !== guild.afkChannelId
+            );
+
+            for (const channel of voiceChannels.values()) {
+              for (const member of channel.members.values()) {
+                if (member.user.bot || member.voice.deaf || member.voice.selfDeaf) continue;
+                await addXp(client, guild, member, xpToGive).catch(() => null);
+              }
+            }
+          }
+        }, intervalMs);
+
+        startupLog(`🎙️ Voice XP system started: +${xpToGive} XP every ${LEVEL_CONFIG.voiceXp.intervalMinutes} mins`);
+      }
     } catch (error) {
       logger.error("Error in ready event:", error);
     }
