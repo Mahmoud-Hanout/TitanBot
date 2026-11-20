@@ -1,75 +1,70 @@
-import { SlashCommandBuilder, EmbedBuilder, MessageFlags } from 'discord.js';
-import { logger } from '../../utils/logger.js';
-import { TitanBotError, ErrorTypes } from '../../utils/errorHandler.js';
-import { getLeaderboard, getLevelingConfig, getXpForLevel } from '../../services/leveling/leveling.js';
+import { SlashCommandBuilder, EmbedBuilder } from 'discord.js';
 
-import { InteractionHelper } from '../../utils/interactionHelper.js';
 export default {
   data: new SlashCommandBuilder()
     .setName('leaderboard')
-    .setDescription(".علشان تشوف أصحاب أعلى لفلات في السيرفر")
+    .setDescription('.علشان تشوف أصحاب أعلى لفلات في السيرفر')
     .setDMPermission(false),
   category: 'Leveling',
 
   async execute(interaction, config, client) {
-    await InteractionHelper.safeDefer(interaction);
+    await interaction.deferReply();
 
-    const levelingConfig = await getLevelingConfig(client, interaction.guildId);
+    const members = await interaction.guild.members.fetch().catch(() => new Map());
+    const leaderboard = [];
 
-    if (!levelingConfig?.enabled) {
-      await InteractionHelper.safeEditReply(interaction, {
+    // جلب بيانات الليفل لكل عضو من قاعدة البيانات مباشرةً
+    for (const [userId, member] of members) {
+      if (member.user.bot) continue;
+
+      const key = `${interaction.guildId}:leveling:users:${userId}`;
+      const data = await client.db.get(key);
+
+      if (data && (data.totalXp > 0 || data.level > 0)) {
+        leaderboard.push({
+          userId,
+          level: data.level || 0,
+          xp: data.xp || 0,
+          totalXp: data.totalXp || 0
+        });
+      }
+    }
+
+    leaderboard.sort((a, b) => b.totalXp - a.totalXp);
+    const top10 = leaderboard.slice(0, 10);
+
+    if (top10.length === 0) {
+      return await interaction.editReply({
         embeds: [
           new EmbedBuilder()
             .setColor('#f1c40f')
-            .setDescription('The leveling system is currently disabled on this server.')
-        ],
-        flags: MessageFlags.Ephemeral
+            .setDescription('مفيش بيانات ليفلات متسجلة في السيرفر لحد دلوقتي! ابدأوا شات عشان تاخدوا XP.')
+        ]
       });
-      return;
-    }
-
-    const leaderboard = await getLeaderboard(client, interaction.guildId, 10);
-
-    if (leaderboard.length === 0) {
-      throw new TitanBotError(
-        'No leaderboard data found',
-        ErrorTypes.DATABASE,
-        'No level data found yet. Start chatting to gain XP!'
-      );
     }
 
     const embed = new EmbedBuilder()
-      .setTitle('Level Leaderboard')
+      .setTitle(`🏆 قائمة المتصدرين في ${interaction.guild.name}`)
       .setColor('#2ecc71')
-      .setDescription("Top 10 most active members in this server:")
+      .setDescription('أعلى 10 أعضاء تفاعلاً في السيرفر:')
       .setTimestamp();
 
-    const leaderboardText = await Promise.all(
-      leaderboard.map(async (user, index) => {
-        try {
-          const member = await interaction.guild.members.fetch(user.userId).catch(() => null);
-          const userMention = member?.user.toString() || `<@${user.userId}>`;
-          const xpForNextLevel = getXpForLevel(user.level + 1);
+    const leaderboardText = top10.map((user, index) => {
+      const xpForNextLevel = 5 * Math.pow(user.level + 1, 2) + 50 * (user.level + 1) + 50;
 
-          let rankPrefix = `${index + 1}.`;
-          if (index === 0) rankPrefix = '🥇';
-          else if (index === 1) rankPrefix = '🥈';
-          else if (index === 2) rankPrefix = '🥉';
-          else rankPrefix = `**${index + 1}.**`;
+      let rankPrefix = `**${index + 1}.**`;
+      if (index === 0) rankPrefix = '🥇';
+      else if (index === 1) rankPrefix = '🥈';
+      else if (index === 2) rankPrefix = '🥉';
 
-          return `${rankPrefix} ${userMention} - Level ${user.level} (${user.xp}/${xpForNextLevel} XP)`;
-        } catch {
-          return `**${index + 1}.** Error loading user ${user.userId}`;
-        }
-      })
-    );
+      return `${rankPrefix} <@${user.userId}> - Level ${user.level} (${user.xp}/${xpForNextLevel} XP)`;
+    });
 
     embed.addFields({
       name: 'Rankings',
       value: leaderboardText.join('\n')
     });
 
-    await InteractionHelper.safeEditReply(interaction, { embeds: [embed] });
-    logger.debug(`Leaderboard displayed for guild ${interaction.guildId}`);
+    await interaction.editReply({ embeds: [embed] });
   }
 };
