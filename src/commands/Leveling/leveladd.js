@@ -1,25 +1,19 @@
-import { SlashCommandBuilder, PermissionFlagsBits, EmbedBuilder, MessageFlags } from 'discord.js';
-import { logger } from '../../utils/logger.js';
-import { TitanBotError, ErrorTypes } from '../../utils/errorHandler.js';
-import { checkUserPermissions } from '../../utils/permissionGuard.js';
-import { addLevels, getLevelingConfig } from '../../services/leveling/leveling.js';
-import { createEmbed } from '../../utils/embeds.js';
+import { SlashCommandBuilder, PermissionFlagsBits, EmbedBuilder } from 'discord.js';
 
-import { InteractionHelper } from '../../utils/interactionHelper.js';
 export default {
   data: new SlashCommandBuilder()
     .setName('leveladd')
-    .setDescription('Add levels to a user')
+    .setDescription('إضافة ليفلات لعضو معين')
     .addUserOption((option) =>
       option
         .setName('user')
-        .setDescription('The user to add levels to')
+        .setDescription('العضو المراد إضافة ليفلات له')
         .setRequired(true)
     )
     .addIntegerOption((option) =>
       option
         .setName('levels')
-        .setDescription('Number of levels to add')
+        .setDescription('عدد الليفلات المراد إضافتها')
         .setRequired(true)
         .setMinValue(1)
     )
@@ -28,26 +22,16 @@ export default {
   category: 'Leveling',
 
   async execute(interaction, config, client) {
-    await InteractionHelper.safeDefer(interaction);
+    await interaction.deferReply();
 
-    const hasPermission = await checkUserPermissions(
-      interaction,
-      PermissionFlagsBits.ManageGuild,
-      'You need ManageGuild permission to use this command.'
-    );
-    if (!hasPermission) return;
-
-    const levelingConfig = await getLevelingConfig(client, interaction.guildId);
-    if (!levelingConfig?.enabled) {
-      await InteractionHelper.safeEditReply(interaction, {
+    if (!interaction.member.permissions.has(PermissionFlagsBits.ManageGuild)) {
+      return await interaction.editReply({
         embeds: [
           new EmbedBuilder()
-            .setColor('#f1c40f')
-            .setDescription('The leveling system is currently disabled on this server.')
-        ],
-        flags: MessageFlags.Ephemeral
+            .setColor(0xff0000)
+            .setDescription('❌ تحتاج إلى صلاحية **Manage Server** لاستخدام هذا الأمر.')
+        ]
       });
-      return;
     }
 
     const targetUser = interaction.options.getUser('user');
@@ -55,27 +39,41 @@ export default {
 
     const member = await interaction.guild.members.fetch(targetUser.id).catch(() => null);
     if (!member) {
-      throw new TitanBotError(
-        `User ${targetUser.id} not found in this guild`,
-        ErrorTypes.USER_INPUT,
-        'The specified user is not in this server.'
-      );
+      return await interaction.editReply({
+        embeds: [
+          new EmbedBuilder()
+            .setColor(0xff0000)
+            .setDescription('❌ هذا العضو غير موجود في السيرفر.')
+        ]
+      });
     }
 
-    const userData = await addLevels(client, interaction.guildId, targetUser.id, levelsToAdd);
+    const key = `${interaction.guildId}:leveling:users:${targetUser.id}`;
+    const existingData = (await client.db.get(key)) || { xp: 0, level: 0, totalXp: 0, lastMessage: 0 };
 
-    await InteractionHelper.safeEditReply(interaction, {
-      embeds: [
-        createEmbed({
-          title: 'Levels Added',
-          description: `Successfully added ${levelsToAdd} levels to ${targetUser.tag}.\n**New Level:** ${userData.level}`,
-          color: 'success'
-        })
-      ]
-    });
+    const newLevel = Math.min(1000, (existingData.level || 0) + levelsToAdd);
 
-    logger.info(
-      `[ADMIN] User ${interaction.user.tag} added ${levelsToAdd} levels to ${targetUser.tag} in guild ${interaction.guildId}`
-    );
+    // حساب إجمالي الـ XP لليفل الجديد بنفس معادلة السيرفر
+    let newTotalXp = 0;
+    for (let i = 0; i < newLevel; i++) {
+      newTotalXp += 5 * Math.pow(i, 2) + 50 * i + 50;
+    }
+
+    const updatedData = {
+      xp: 0,
+      level: newLevel,
+      totalXp: newTotalXp,
+      lastMessage: existingData.lastMessage || 0
+    };
+
+    await client.db.set(key, updatedData);
+
+    const embed = new EmbedBuilder()
+      .setTitle('✅ تمت إضافة الليفلات')
+      .setDescription(`تمت إضافة **${levelsToAdd}** ليفل إلى ${targetUser.tag}.\n**الليفل الجديد:** ${newLevel}`)
+      .setColor(0x2ecc71)
+      .setTimestamp();
+
+    await interaction.editReply({ embeds: [embed] });
   }
 };
