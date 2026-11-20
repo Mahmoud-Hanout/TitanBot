@@ -49,9 +49,6 @@ export default {
 
     const subcommand = interaction.options.getSubcommand();
 
-    // ==========================================
-    // 1. تصفير عضو معين (/levelreset user)
-    // ==========================================
     if (subcommand === 'user') {
       await interaction.deferReply();
 
@@ -65,7 +62,6 @@ export default {
         lastMessage: 0
       });
 
-      // إزالة رتب المكافآت من العضو إن وجدت
       const member = await interaction.guild.members.fetch(targetUser.id).catch(() => null);
       if (member && LEVEL_CONFIG?.roleRewards) {
         const rewardRoleIds = Object.values(LEVEL_CONFIG.roleRewards);
@@ -85,9 +81,6 @@ export default {
       return await interaction.editReply({ embeds: [embed] });
     }
 
-    // ==========================================
-    // 2. تصفير السيرفر بالكامل (/levelreset server)
-    // ==========================================
     if (subcommand === 'server') {
       await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
@@ -151,7 +144,6 @@ export default {
               resetCount++;
             }
 
-            // سحب رتب المكافآت من الأعضاء
             for (const roleId of rewardRoleIds) {
               if (member.roles.cache.has(roleId)) {
                 await member.roles.remove(roleId, 'Server level reset by admin').catch(() => null);
