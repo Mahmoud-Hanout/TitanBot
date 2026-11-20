@@ -1,110 +1,107 @@
-import { SlashCommandBuilder, PermissionFlagsBits, PermissionsBitField, ChannelType, MessageFlags } from 'discord.js';
-import { createEmbed, successEmbed, infoEmbed, warningEmbed } from '../../utils/embeds.js';
-import { logEvent } from '../../utils/moderation.js';
-import { logger } from '../../utils/logger.js';
-import { sanitizeMarkdown } from '../../utils/validation.js';
+import { SlashCommandBuilder, PermissionFlagsBits, EmbedBuilder, MessageFlags } from 'discord.js';
 
-import { InteractionHelper } from '../../utils/interactionHelper.js';
-import { replyUserError, ErrorTypes } from '../../utils/errorHandler.js';
 export default {
-    data: new SlashCommandBuilder()
-        .setName("dm")
-        .setDescription("Send a direct message to a user (Staff only)")
-        .addUserOption(option =>
-            option
-                .setName("user")
-                .setDescription("The user to send a DM to")
-                .setRequired(true)
+  data: new SlashCommandBuilder()
+    .setName('dm')
+    .setDescription('إرسال رسالة خاصة (DM) لعضو عبر البوت (للإدارة فقط)')
+    .addUserOption(option =>
+      option
+        .setName('user')
+        .setDescription('العضو المراد إرسال الرسالة إليه')
+        .setRequired(true)
+    )
+    .addStringOption(option =>
+      option
+        .setName('message')
+        .setDescription('نص الرسالة')
+        .setRequired(true)
+    )
+    .addBooleanOption(option =>
+      option
+        .setName('anonymous')
+        .setDescription('إرسال الرسالة باسم الإدارة بدون ذكر اسمك (الافتراضي: لا)')
+        .setRequired(false)
+    )
+    .setDefaultMemberPermissions(PermissionFlagsBits.ModerateMembers)
+    .setDMPermission(false),
+
+  category: 'moderation',
+
+  async execute(interaction) {
+    await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+
+    const targetUser = interaction.options.getUser('user');
+    const message = interaction.options.getString('message');
+    const anonymous = interaction.options.getBoolean('anonymous') || false;
+
+    try {
+      // 1. فحوصات الأمان
+      if (message.length > 2000) {
+        return await interaction.editReply({
+          embeds: [
+            new EmbedBuilder()
+              .setColor(0xff0000)
+              .setDescription('❌ الرسالة طويلة جداً، يجب ألا تتعدى 2000 حرف.')
+          ]
+        });
+      }
+
+      if (targetUser.bot) {
+        return await interaction.editReply({
+          embeds: [
+            new EmbedBuilder()
+              .setColor(0xff0000)
+              .setDescription('❌ لا يمكنك إرسال رسائل خاصة لحسابات البوتات.')
+          ]
+        });
+      }
+
+      // 2. تجهيز وإرسال الرسالة الخاصة للعضو
+      const dmEmbed = new EmbedBuilder()
+        .setColor(0x3498db)
+        .setTitle(anonymous ? `📩 رسالة من إدارة سيرفر ${interaction.guild.name}` : `📩 رسالة من ${interaction.user.tag}`)
+        .setDescription(message)
+        .setFooter({
+          text: `سيرفر ${interaction.guild.name} • لا يمكنك الرد على هذه الرسالة`
+        })
+        .setTimestamp();
+
+      await targetUser.send({ embeds: [dmEmbed] });
+
+      // 3. تأكيد الإرسال للمشرف
+      const successEmbed = new EmbedBuilder()
+        .setColor(0x2ecc71)
+        .setTitle('✅ تم إرسال الرسالة الخاصة')
+        .addFields(
+          { name: 'المستلم', value: `${targetUser.tag} (\`${targetUser.id}\`)`, inline: true },
+          { name: 'الوضع', value: anonymous ? 'مجهول (باسم الإدارة)' : `باسمك (${interaction.user.tag})`, inline: true },
+          { name: 'الرسالة', value: message, inline: false }
         )
-        .addStringOption(option =>
-            option
-                .setName("message")
-                .setDescription("The message to send")
-                .setRequired(true)
-        )
-        .addBooleanOption(option =>
-            option
-                .setName("anonymous")
-                .setDescription("Send the message anonymously (default: false)")
-                .setRequired(false)
-        )
-        .setDefaultMemberPermissions(PermissionFlagsBits.ModerateMembers)
-        .setDMPermission(false),
-    category: "moderation",
+        .setTimestamp();
 
-    async execute(interaction, config, client) {
-        const deferSuccess = await InteractionHelper.safeDefer(interaction);
-        if (!deferSuccess) {
-            logger.warn(`DM interaction defer failed`, {
-                userId: interaction.user.id,
-                guildId: interaction.guildId,
-                commandName: 'dm'
-            });
-            return;
-        }
+      return await interaction.editReply({ embeds: [successEmbed] });
 
-    const targetUser = interaction.options.getUser("user");
-        const message = interaction.options.getString("message");
-        const anonymous = interaction.options.getBoolean("anonymous") || false;
+    } catch (error) {
+      console.error('DM command error:', error);
 
-        try {
-            
-            if (message.length > 2000) {
-                return await replyUserError(interaction, { type: ErrorTypes.UNKNOWN, message: 'Messages must be under 2000 characters.' });
-            }
+      // خطأ ديسكورد 50007 يعني أن العضو قافل الخاص (DMs Disabled)
+      if (error.code === 50007) {
+        return await interaction.editReply({
+          embeds: [
+            new EmbedBuilder()
+              .setColor(0xff0000)
+              .setDescription(`❌ تعذر إرسال الرسالة إلى **${targetUser.tag}** لأنه قافل الرسائل الخاصة (DMs).`)
+          ]
+        });
+      }
 
-            if (targetUser.bot) {
-                return await replyUserError(interaction, { type: ErrorTypes.UNKNOWN, message: 'You cannot send DMs to bot accounts.' });
-            }
-
-            const sanitized = sanitizeMarkdown(message);
-
-            const dmChannel = await targetUser.createDM();
-            
-            await dmChannel.send({
-                embeds: [
-                    successEmbed(
-                        anonymous ? "Message from the Staff Team" : `Message from ${interaction.user.tag}`,
-                        sanitized
-                    ).setFooter({
-                        text: `You cannot reply to this message. | Logger ID: ${interaction.id}`
-                    })
-                ]
-            });
-
-            await logEvent({
-                client: interaction.client,
-                guild: interaction.guild,
-                event: {
-                    action: "DM Sent",
-                    target: `${targetUser.tag} (${targetUser.id})`,
-                    executor: `${interaction.user.tag} (${interaction.user.id})`,
-                    reason: `Anonymous: ${anonymous ? 'Yes' : 'No'}`,
-                    metadata: {
-                        userId: targetUser.id,
-                        moderatorId: interaction.user.id,
-                        anonymous,
-                        messageLength: sanitized.length
-                    }
-                }
-            });
-
-            return await InteractionHelper.safeEditReply(interaction, {
-                embeds: [
-                    successEmbed(
-                        "DM Sent",
-                        `Successfully sent a message to ${targetUser.tag}`
-                    ),
-                ],
-            });
-        } catch (error) {
-            logger.error('DM command error:', error);
-            
-if (error.code === 50007) {
-                return await replyUserError(interaction, { type: ErrorTypes.UNKNOWN, message: `Could not send a DM to ${targetUser.tag}. They may have DMs disabled.` });
-            }
-            
-            return await replyUserError(interaction, { type: ErrorTypes.UNKNOWN, message: `Failed to send DM: ${error.message}` });
-        }
+      return await interaction.editReply({
+        embeds: [
+          new EmbedBuilder()
+            .setColor(0xff0000)
+            .setDescription(`❌ حدث خطأ أثناء إرسال الرسالة: ${error.message}`)
+        ]
+      });
     }
+  }
 };
