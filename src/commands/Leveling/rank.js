@@ -1,37 +1,20 @@
-import { SlashCommandBuilder, EmbedBuilder, MessageFlags } from 'discord.js';
-import { logger } from '../../utils/logger.js';
-import { TitanBotError, ErrorTypes } from '../../utils/errorHandler.js';
-import { getUserLevelData, getLevelingConfig, getXpForLevel } from '../../services/leveling/leveling.js';
+import { SlashCommandBuilder, EmbedBuilder } from 'discord.js';
 
-import { InteractionHelper } from '../../utils/interactionHelper.js';
 export default {
   data: new SlashCommandBuilder()
     .setName('rank')
-    .setDescription("Check your or another user's rank and level")
+    .setDescription('عرض ليفلك أو ليفل عضو آخر في السيرفر')
     .addUserOption((option) =>
       option
         .setName('user')
-        .setDescription('The user to check the rank of')
+        .setDescription('العضو المراد عرض ليفله')
         .setRequired(false)
     )
     .setDMPermission(false),
   category: 'Leveling',
 
   async execute(interaction, config, client) {
-    await InteractionHelper.safeDefer(interaction);
-
-    const levelingConfig = await getLevelingConfig(client, interaction.guildId);
-    if (!levelingConfig?.enabled) {
-      await InteractionHelper.safeEditReply(interaction, {
-        embeds: [
-          new EmbedBuilder()
-            .setColor('#f1c40f')
-            .setDescription('The leveling system is currently disabled on this server.')
-        ],
-        flags: MessageFlags.Ephemeral
-      });
-      return;
-    }
+    await interaction.deferReply();
 
     const targetUser = interaction.options.getUser('user') || interaction.user;
     const member = await interaction.guild.members
@@ -39,14 +22,17 @@ export default {
       .catch(() => null);
 
     if (!member) {
-      throw new TitanBotError(
-        `User ${targetUser.id} not found in guild`,
-        ErrorTypes.USER_INPUT,
-        'Could not find the specified user in this server.'
-      );
+      return await interaction.editReply({
+        embeds: [
+          new EmbedBuilder()
+            .setColor(0xff0000)
+            .setDescription('❌ هذا العضو غير موجود في السيرفر.')
+        ]
+      });
     }
 
-    const userData = await getUserLevelData(client, interaction.guildId, targetUser.id);
+    const key = `${interaction.guildId}:leveling:users:${targetUser.id}`;
+    const userData = (await client.db.get(key)) || { level: 0, xp: 0, totalXp: 0 };
 
     const safeUserData = {
       level: userData?.level ?? 0,
@@ -54,46 +40,40 @@ export default {
       totalXp: userData?.totalXp ?? 0
     };
 
-    const xpNeeded = getXpForLevel(safeUserData.level + 1);
-    const progress = xpNeeded > 0 ? Math.floor((safeUserData.xp / xpNeeded) * 100) : 0;
-    const progressBar = createProgressBar(progress, 20);
+    const nextLevel = safeUserData.level + 1;
+    const xpNeeded = 5 * Math.pow(nextLevel, 2) + 50 * nextLevel + 50;
+    const progress = xpNeeded > 0 ? Math.min(100, Math.max(0, Math.floor((safeUserData.xp / xpNeeded) * 100))) : 0;
+
+    const filled = Math.round((progress / 100) * 20);
+    const progressBar = '█'.repeat(filled) + '░'.repeat(20 - filled);
 
     const embed = new EmbedBuilder()
-      .setTitle(`${member.displayName}'s Rank`)
-      .setThumbnail(member.displayAvatarURL({ dynamic: true }))
+      .setTitle(`📊 مستوى ${member.displayName}`)
+      .setThumbnail(member.displayAvatarURL({ extension: 'png', size: 256 }))
       .addFields(
         {
-          name: 'Level',
+          name: 'الليفل',
           value: safeUserData.level.toString(),
           inline: true
         },
         {
-          name: 'XP',
+          name: 'نقاط الخبرة (XP)',
           value: `${safeUserData.xp}/${xpNeeded}`,
           inline: true
         },
         {
-          name: 'Total XP',
+          name: 'إجمالي الـ XP',
           value: safeUserData.totalXp.toString(),
           inline: true
         },
         {
-          name: `Progress to Level ${safeUserData.level + 1}`,
-          value: `${progressBar} ${progress}%`
+          name: `التقدم نحو ليفل ${nextLevel}`,
+          value: `${progressBar} **${progress}%**`
         }
       )
-      .setColor('#2ecc71')
+      .setColor(0x2ecc71)
       .setTimestamp();
 
-    await InteractionHelper.safeEditReply(interaction, { embeds: [embed] });
-    logger.debug(`Rank checked for user ${targetUser.id} in guild ${interaction.guildId}`);
+    await interaction.editReply({ embeds: [embed] });
   }
 };
-
-function createProgressBar(percentage, length = 10) {
-  if (percentage < 0 || percentage > 100) {
-    percentage = Math.max(0, Math.min(100, percentage));
-  }
-  const filled = Math.round((percentage / 100) * length);
-  return '█'.repeat(filled) + '░'.repeat(length - filled);
-}
