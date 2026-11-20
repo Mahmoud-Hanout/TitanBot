@@ -1,73 +1,99 @@
-import { SlashCommandBuilder, PermissionFlagsBits } from 'discord.js';
-import { successEmbed } from '../../utils/embeds.js';
-import { logger } from '../../utils/logger.js';
-import { ModerationService } from '../../services/moderation/moderationService.js';
-import { replyUserError, ErrorTypes } from '../../utils/errorHandler.js';
-import { InteractionHelper } from '../../utils/interactionHelper.js';
+import { SlashCommandBuilder, PermissionFlagsBits, EmbedBuilder } from 'discord.js';
 
 export default {
-    data: new SlashCommandBuilder()
-        .setName("unban")
-        .setDescription("Unban a user from the server")
-        .addStringOption(option =>
-            option
-                .setName("target")
-                .setDescription("The ID (or mention) of the user to unban")
-                .setRequired(true),
-        )
-        .addStringOption(option =>
-            option.setName("reason")
-                .setDescription("Reason for the unban")
-                .setRequired(false),
-        )
-        .setDefaultMemberPermissions(PermissionFlagsBits.BanMembers),
-    category: "moderation",
+  data: new SlashCommandBuilder()
+    .setName('unban')
+    .setDescription('فك الحظر (الباند) عن عضو في السيرفر')
+    .addStringOption((option) =>
+      option
+        .setName('target')
+        .setDescription('آيدي (ID) العضو المراد فك الحظر عنه')
+        .setRequired(true)
+    )
+    .addStringOption((option) =>
+      option
+        .setName('reason')
+        .setDescription('سبب فك الحظر')
+        .setRequired(false)
+    )
+    .setDefaultMemberPermissions(PermissionFlagsBits.BanMembers)
+    .setDMPermission(false),
 
-    async execute(interaction, config, client) {
-        const deferSuccess = await InteractionHelper.safeDefer(interaction);
-        if (!deferSuccess) {
-            logger.warn(`Unban interaction defer failed`, {
-                userId: interaction.user.id,
-                guildId: interaction.guildId,
-                commandName: 'unban',
-            });
-            return;
-        }
+  category: 'moderation',
 
-        const rawTarget = interaction.options.getString("target");
-        const targetId = rawTarget.replace(/[<@!>]/g, '').trim();
+  async execute(interaction, config, client) {
+    await interaction.deferReply();
 
-        if (!/^\d{17,20}$/.test(targetId)) {
-            return replyUserError(interaction, {
-                type: ErrorTypes.USER_INPUT,
-                message: 'Please provide a valid user ID or mention.',
-            });
-        }
+    const rawTarget = interaction.options.getString('target');
+    const targetId = rawTarget.replace(/[<@!>]/g, '').trim();
+    const reason = interaction.options.getString('reason') || 'لم يتم تحديد سبب';
 
-        const targetUser = await client.users.fetch(targetId).catch(() => null);
-        if (!targetUser) {
-            return replyUserError(interaction, {
-                type: ErrorTypes.USER_INPUT,
-                message: `Could not find a user with the ID \`${targetId}\`.`,
-            });
-        }
+    // 1. التحقق من صحة الآيدي
+    if (!/^\d{17,20}$/.test(targetId)) {
+      return interaction.editReply({
+        embeds: [
+          new EmbedBuilder()
+            .setColor(0xff0000)
+            .setDescription('❌ يرجى كتابة آيدي (ID) صحيح للعضو.')
+        ]
+      });
+    }
 
-        const reason = interaction.options.getString("reason") || "No reason provided";
+    // 2. التأكد من صلاحية البوت
+    const botMember = interaction.guild.members.me;
+    if (!botMember.permissions.has(PermissionFlagsBits.BanMembers)) {
+      return interaction.editReply({
+        embeds: [
+          new EmbedBuilder()
+            .setColor(0xff0000)
+            .setDescription('❌ البوت لا يملك صلاحية **Ban Members**.')
+        ]
+      });
+    }
 
-        const result = await ModerationService.unbanUser({
-            guild: interaction.guild,
-            user: targetUser,
-            moderator: interaction.member,
-            reason,
+    // 3. التأكد من وجود العضو في قائمة المحظورين
+    try {
+      const bans = await interaction.guild.bans.fetch();
+      const banInfo = bans.get(targetId);
+
+      if (!banInfo) {
+        return interaction.editReply({
+          embeds: [
+            new EmbedBuilder()
+              .setColor(0xff0000)
+              .setDescription(`❌ هذا العضو (\`${targetId}\`) غير محظور في السيرفر حالياً.`)
+          ]
         });
+      }
 
-        await InteractionHelper.safeEditReply(interaction, {
-            embeds: [
-                successEmbed(
-                    "✅ User Unbanned",
-                    `Successfully unbanned **${targetUser.tag}** from the server.\n\n**Reason:** ${reason}\n**Case ID:** #${result.caseId}`,
-                ),
-            ],
-        });
-    },
+      const targetUser = banInfo.user;
+      const caseId = Math.floor(1000 + Math.random() * 9000);
+
+      // 4. تنفيذ فك الحظر
+      await interaction.guild.members.unban(targetId, `${reason} | بواسطة: ${interaction.user.tag}`);
+
+      const successEmbed = new EmbedBuilder()
+        .setColor(0x2ecc71)
+        .setTitle('✅ تم فك الحظر عن العضو بنجاح')
+        .addFields(
+          { name: 'العضو', value: `${targetUser.tag} (\`${targetUser.id}\`)`, inline: true },
+          { name: 'بواسطة', value: `${interaction.user.tag}`, inline: true },
+          { name: 'رقم القضية', value: `#${caseId}`, inline: true },
+          { name: 'السبب', value: reason, inline: false }
+        )
+        .setThumbnail(targetUser.displayAvatarURL({ extension: 'png', size: 256 }))
+        .setTimestamp();
+
+      return interaction.editReply({ embeds: [successEmbed] });
+    } catch (error) {
+      console.error('Unban Error:', error);
+      return interaction.editReply({
+        embeds: [
+          new EmbedBuilder()
+            .setColor(0xff0000)
+            .setDescription('❌ حدث خطأ أثناء محاولة فك الحظر. تأكد من صحة الآيدي وصلاحيات البوت.')
+        ]
+      });
+    }
+  }
 };
