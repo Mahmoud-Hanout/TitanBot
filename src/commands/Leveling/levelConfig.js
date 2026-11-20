@@ -1,15 +1,14 @@
 // ⚙️ إعدادات نظام الليفل ومنطق إضافة النقاط (XP)
 export const LEVEL_CONFIG = {
   enabled: true,
-  xpPerMessage: { min: 150, max: 250 },
-  xpCooldown: 1, // بالثواني
+  xpPerMessage: { min: 100, max: 200 },
+  xpCooldown: 60,
   levelUpMessage: '🎉 مبروك يا {user}! وصلت لليفل **{level}**!',
   levelUpChannel: '1568700000148394106',
   ignoredChannels: [],
   ignoredRoles: [],
   blacklistedUsers: [],
   roleRewards: {
-    // "5": "آيدي_الرتبة"
     "10": "1567416738021253160",
     "20": "1567416737555685536",
     "30": "1567416737094311996",
@@ -36,7 +35,7 @@ export const LEVEL_CONFIG = {
   voiceXp: {
     enabled: true,
     xpAmount: 200,
-    intervalMinutes: 5
+    intervalMinutes: 1
   }
 };
 
