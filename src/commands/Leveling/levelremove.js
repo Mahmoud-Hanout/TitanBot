@@ -1,25 +1,19 @@
-import { SlashCommandBuilder, PermissionFlagsBits, EmbedBuilder, MessageFlags } from 'discord.js';
-import { logger } from '../../utils/logger.js';
-import { TitanBotError, ErrorTypes } from '../../utils/errorHandler.js';
-import { checkUserPermissions } from '../../utils/permissionGuard.js';
-import { removeLevels, getUserLevelData, getLevelingConfig } from '../../services/leveling/leveling.js';
-import { createEmbed } from '../../utils/embeds.js';
+import { SlashCommandBuilder, PermissionFlagsBits, EmbedBuilder } from 'discord.js';
 
-import { InteractionHelper } from '../../utils/interactionHelper.js';
 export default {
   data: new SlashCommandBuilder()
     .setName('levelremove')
-    .setDescription('Remove levels from a user')
+    .setDescription('خصم ليفلات من عضو معين')
     .addUserOption((option) =>
       option
         .setName('user')
-        .setDescription('The user to remove levels from')
+        .setDescription('العضو المراد خصم الليفلات منه')
         .setRequired(true)
     )
     .addIntegerOption((option) =>
       option
         .setName('levels')
-        .setDescription('Number of levels to remove')
+        .setDescription('عدد الليفلات المراد خصمها')
         .setRequired(true)
         .setMinValue(1)
     )
@@ -28,26 +22,16 @@ export default {
   category: 'Leveling',
 
   async execute(interaction, config, client) {
-    await InteractionHelper.safeDefer(interaction);
+    await interaction.deferReply();
 
-    const hasPermission = await checkUserPermissions(
-      interaction,
-      PermissionFlagsBits.ManageGuild,
-      'You need ManageGuild permission to use this command.'
-    );
-    if (!hasPermission) return;
-
-    const levelingConfig = await getLevelingConfig(client, interaction.guildId);
-    if (!levelingConfig?.enabled) {
-      await InteractionHelper.safeEditReply(interaction, {
+    if (!interaction.member.permissions.has(PermissionFlagsBits.ManageGuild)) {
+      return await interaction.editReply({
         embeds: [
           new EmbedBuilder()
-            .setColor('#f1c40f')
-            .setDescription('The leveling system is currently disabled on this server.')
-        ],
-        flags: MessageFlags.Ephemeral
+            .setColor(0xff0000)
+            .setDescription('❌ تحتاج إلى صلاحية **Manage Server** لاستخدام هذا الأمر.')
+        ]
       });
-      return;
     }
 
     const targetUser = interaction.options.getUser('user');
@@ -55,36 +39,51 @@ export default {
 
     const member = await interaction.guild.members.fetch(targetUser.id).catch(() => null);
     if (!member) {
-      throw new TitanBotError(
-        `User ${targetUser.id} not found in this guild`,
-        ErrorTypes.USER_INPUT,
-        'The specified user is not in this server.'
-      );
+      return await interaction.editReply({
+        embeds: [
+          new EmbedBuilder()
+            .setColor(0xff0000)
+            .setDescription('❌ هذا العضو غير موجود في السيرفر.')
+        ]
+      });
     }
 
-    const userData = await getUserLevelData(client, interaction.guildId, targetUser.id);
-    if (userData.level === 0) {
-      throw new TitanBotError(
-        `User ${targetUser.id} is already at minimum level`,
-        ErrorTypes.VALIDATION,
-        `${targetUser.tag} is already at level 0 and cannot have levels removed.`
-      );
+    const key = `${interaction.guildId}:leveling:users:${targetUser.id}`;
+    const existingData = (await client.db.get(key)) || { xp: 0, level: 0, totalXp: 0, lastMessage: 0 };
+
+    if ((existingData.level || 0) === 0) {
+      return await interaction.editReply({
+        embeds: [
+          new EmbedBuilder()
+            .setColor(0xf1c40f)
+            .setDescription(`⚠️ العضو **${targetUser.tag}** ليفله **0** بالفعل ولا يمكن خصم ليفلات منه.`)
+        ]
+      });
     }
 
-    const updatedData = await removeLevels(client, interaction.guildId, targetUser.id, levelsToRemove);
+    const newLevel = Math.max(0, (existingData.level || 0) - levelsToRemove);
 
-    await InteractionHelper.safeEditReply(interaction, {
-      embeds: [
-        createEmbed({
-          title: 'Levels Removed',
-          description: `Successfully removed ${levelsToRemove} levels from ${targetUser.tag}.\n**New Level:** ${updatedData.level}`,
-          color: 'success'
-        })
-      ]
-    });
+    // حساب إجمالي الـ XP لليفل الجديد بنفس معادلة السيرفر
+    let newTotalXp = 0;
+    for (let i = 0; i < newLevel; i++) {
+      newTotalXp += 5 * Math.pow(i, 2) + 50 * i + 50;
+    }
 
-    logger.info(
-      `[ADMIN] User ${interaction.user.tag} removed ${levelsToRemove} levels from ${targetUser.tag} in guild ${interaction.guildId}`
-    );
+    const updatedData = {
+      xp: 0,
+      level: newLevel,
+      totalXp: newTotalXp,
+      lastMessage: existingData.lastMessage || 0
+    };
+
+    await client.db.set(key, updatedData);
+
+    const embed = new EmbedBuilder()
+      .setTitle('✅ تم خصم الليفلات')
+      .setDescription(`تم خصم **${levelsToRemove}** ليفل من ${targetUser.tag}.\n**الليفل الجديد:** ${newLevel}`)
+      .setColor(0x2ecc71)
+      .setTimestamp();
+
+    await interaction.editReply({ embeds: [embed] });
   }
 };
