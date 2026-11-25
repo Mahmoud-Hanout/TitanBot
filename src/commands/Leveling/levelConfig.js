@@ -2,7 +2,7 @@
 export const LEVEL_CONFIG = {
   enabled: true,
   xpPerMessage: { min: 200, max: 400 },
-  xpCooldown: 5, // بالثواني (عدله براحتك بعد التجربة)
+  xpCooldown: 30,
   levelUpMessage: '🎉 مبروك يا {user}! وصلت لليفل **{level}**!',
   roleRewardMessage: '🏆 عاش يا {user}! وصلت لليفل **{level}** واستلمت رتبة **{role}** عن جدارة! 🔥',
   levelUpChannel: '1568700000148394106',
