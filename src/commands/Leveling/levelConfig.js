@@ -2,9 +2,9 @@
 export const LEVEL_CONFIG = {
   enabled: true,
   xpPerMessage: { min: 200, max: 400 },
-  xpCooldown: 100,
+  xpCooldown: 5, // بالثواني (عدله براحتك بعد التجربة)
   levelUpMessage: '🎉 مبروك يا {user}! وصلت لليفل **{level}**!',
-  roleRewardMessage: '🏆 عاش يا {user}! وصلت لليفل **{level}** واستلمت رتبة',
+  roleRewardMessage: '🏆 عاش يا {user}! وصلت لليفل **{level}** واستلمت رتبة **{role}** عن جدارة! 🔥',
   levelUpChannel: '1568700000148394106',
   ignoredChannels: [],
   ignoredRoles: [],
@@ -55,10 +55,9 @@ export async function addXp(client, guild, member, xpToAdd) {
 
   let xpNeeded = getXpForLevel(levelData.level || 0);
   let didLevelUp = false;
+  let awardedRole = null;
 
-    let awardedRole = null;
-
-  while (levelData.xp >= xpNeeded && levelData.level < 1000) {
+  while (levelData.xp >= xpNeeded && levelData.level < 2500) {
     levelData.xp -= xpNeeded;
     levelData.level += 1;
     didLevelUp = true;
@@ -66,7 +65,6 @@ export async function addXp(client, guild, member, xpToAdd) {
 
     const roleId = LEVEL_CONFIG.roleRewards?.[levelData.level];
     if (roleId) {
-      // إزالة الرتب القديمة من قائمة الجوائز إذا كان الخيار مفعلاً
       if (LEVEL_CONFIG.removePreviousRoles) {
         const allRewardRoles = Object.values(LEVEL_CONFIG.roleRewards).filter((id) => id !== roleId);
         for (const oldRoleId of allRewardRoles) {
@@ -92,7 +90,6 @@ export async function addXp(client, guild, member, xpToAdd) {
       : guild.systemChannel;
 
     if (channel && channel.isTextBased()) {
-      // لو أخد رتبة مكافأة يبعت الرسالة الخاصة بالرتبة، غير كده يبعت رسالة الترقية العادية
       const template = awardedRole && LEVEL_CONFIG.roleRewardMessage
         ? LEVEL_CONFIG.roleRewardMessage
         : LEVEL_CONFIG.levelUpMessage;
@@ -109,3 +106,5 @@ export async function addXp(client, guild, member, xpToAdd) {
   }
 
   await client.db.set(key, levelData);
+  return { ...levelData, leveledUp: didLevelUp };
+}
